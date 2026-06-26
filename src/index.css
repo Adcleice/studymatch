@@ -1,0 +1,17 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --purple: #6C63FF; --purple-dark: #4B44CC; --purple-light: #EEF0FF;
+  --teal: #00C9A7; --teal-light: #E0FBF5; --dark: #1A1A2E;
+  --gray: #6B7280; --gray-light: #F3F4F6; --white: #FFFFFF;
+  --radius: 16px; --shadow: 0 4px 24px rgba(108,99,255,0.10);
+}
+body { font-family: 'Inter', sans-serif; background: #F7F8FF; color: var(--dark); min-height: 100vh; }
+h1, h2, h3 { font-family: 'Sora', sans-serif; }
+button { cursor: pointer; font-family: 'Inter', sans-serif; border: none; outline: none; transition: all 0.2s ease; }
+input, textarea, select { font-family: 'Inter', sans-serif; outline: none; border: 2px solid #E5E7EB; border-radius: 12px; padding: 12px 16px; width: 100%; font-size: 15px; transition: border-color 0.2s; background: var(--white); }
+input:focus, textarea:focus, select:focus { border-color: var(--purple); }
+a { text-decoration: none; color: inherit; }
+.btn-primary { background: var(--purple); color: white; padding: 14px 28px; border-radius: 12px; font-size: 15px; font-weight: 600; width: 100%; }
+.btn-primary:hover { background: var(--purple-dark); transform: translateY(-1px); }
+.btn-secondary { background: var(--purple-light); color: var(--purple); padding: 14px 28px; border-radius: 12px; font-size: 15px; font-weight: 600; width: 100%; }
+.card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
