@@ -1,5 +1,8 @@
 {
-  "buildCommand": "vite build",
+  "buildCommand": "vite build && cp public/waitlist.html dist/waitlist.html",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/waitlist", "destination": "/waitlist.html" },
+    { "source": "/((?!waitlist).*)", "destination": "/index.html" }
+  ]
 }
