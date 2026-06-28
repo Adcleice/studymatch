@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase.js';
 import { useNavigate } from 'react-router-dom';
+import { X, MessageCircle, UserPlus, BookOpen, Briefcase } from 'lucide-react';
 
-const GEOCODE_KEY = 'pk.eyJ1Ijoic3R1ZHltYXRjaCIsImEiOiJjbHgifQ.fake'; // will use nominatim free
+const ADMIN_ID = null; // será setado automaticamente com o primeiro usuário admin
 
 async function geocodePlace(place) {
   if (!place) return null;
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`,
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place + ', Brasil')}&format=json&limit=1`,
       { headers: { 'Accept-Language': 'pt-BR' } }
     );
     const data = await res.json();
-    if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), display: data[0].display_name };
+    if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
     return null;
   } catch { return null; }
 }
@@ -22,14 +23,14 @@ export default function Map({ session }) {
   const [markers, setMarkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [requesting, setRequesting] = useState(false);
+  const [requestStatus, setRequestStatus] = useState(null); // 'sent' | 'match' | null
   const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef(null);
   const leafletMap = useRef(null);
-  const markersRef = useRef([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load Leaflet CSS
     if (!document.getElementById('leaflet-css')) {
       const link = document.createElement('link');
       link.id = 'leaflet-css';
@@ -37,76 +38,45 @@ export default function Map({ session }) {
       link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
       document.head.appendChild(link);
     }
-    // Load Leaflet JS
     if (!window.L) {
       const script = document.createElement('script');
       script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
       script.onload = () => setMapReady(true);
       document.head.appendChild(script);
-    } else {
-      setMapReady(true);
-    }
+    } else setMapReady(true);
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   useEffect(() => {
-    if (mapReady && markers.length > 0 && mapRef.current && !leafletMap.current) {
-      initMap();
-    }
+    if (mapReady && markers.length > 0 && mapRef.current && !leafletMap.current) initMap();
   }, [mapReady, markers]);
 
   async function loadData() {
     const { data: me } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
     setMyProfile(me);
 
-    // Get my matches
-    const { data: matchData } = await supabase.from('matches')
-      .select('*')
+    const { data: matchData } = await supabase.from('matches').select('*')
       .or(`user1_id.eq.${session.user.id},user2_id.eq.${session.user.id}`);
+    const matchIds = new Set((matchData || []).map(m => m.user1_id === session.user.id ? m.user2_id : m.user1_id));
 
-    const matchIds = new Set((matchData || []).map(m =>
-      m.user1_id === session.user.id ? m.user2_id : m.user1_id
-    ));
-
-    // Get all profiles except mine
     const { data: profiles } = await supabase.from('profiles').select('*').neq('id', session.user.id);
 
-    // Filter: same institution OR compatible needs
-    const relevant = (profiles || []).filter(p => {
-      const sameInstitution = me.institution && p.institution &&
-        p.institution.toLowerCase().includes(me.institution.toLowerCase().split(' ')[0]);
-      const compatible = me.need_help && p.can_help &&
-        me.need_help.some(s => p.can_help.includes(s));
-      return sameInstitution || compatible || matchIds.has(p.id);
-    });
-
-    // Geocode each unique institution/city
     const geocodeCache = {};
     const enriched = [];
-
-    for (const p of relevant) {
-      const place = p.institution || p.city || 'Brasil';
+    for (const p of (profiles || [])) {
+      const place = p.institution || p.city || 'São Paulo';
       if (!geocodeCache[place]) {
         geocodeCache[place] = await geocodePlace(place);
-        await new Promise(r => setTimeout(r, 300)); // rate limit
+        await new Promise(r => setTimeout(r, 300));
       }
       const coords = geocodeCache[place];
       if (coords) {
-        // Add small random offset so markers don't stack exactly
-        const jitter = () => (Math.random() - 0.5) * 0.005;
-        enriched.push({
-          ...p,
-          lat: coords.lat + jitter(),
-          lng: coords.lng + jitter(),
-          isMatch: matchIds.has(p.id),
-          matchId: matchData?.find(m => m.user1_id === p.id || m.user2_id === p.id)?.id,
-        });
+        const jitter = () => (Math.random() - 0.5) * 0.008;
+        const match = (matchData || []).find(m => m.user1_id === p.id || m.user2_id === p.id);
+        enriched.push({ ...p, lat: coords.lat + jitter(), lng: coords.lng + jitter(), isMatch: matchIds.has(p.id), matchId: match?.id });
       }
     }
-
     setMarkers(enriched);
     setLoading(false);
   }
@@ -114,112 +84,135 @@ export default function Map({ session }) {
   function initMap() {
     const L = window.L;
     const map = L.map(mapRef.current).setView([-15.7801, -47.9292], 5);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
     markers.forEach(m => {
-      const isMatch = m.isMatch;
       const icon = L.divIcon({
         className: '',
-        html: `<div style="
-          width:40px;height:40px;border-radius:50%;border:3px solid ${isMatch ? '#6C63FF' : '#9CA3AF'};
-          background:white;overflow:hidden;cursor:pointer;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        ">
+        html: `<div style="width:44px;height:44px;border-radius:50%;border:3px solid ${m.isMatch ? '#6C63FF' : '#9CA3AF'};background:white;overflow:hidden;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.2);">
           <img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />
-        </div>
-        ${isMatch ? `<div style="width:12px;height:12px;background:#6C63FF;border-radius:50%;border:2px solid white;position:absolute;bottom:0;right:0;"></div>` : ''}`,
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
+        </div>`,
+        iconSize: [44, 44], iconAnchor: [22, 22],
       });
-
       const marker = L.marker([m.lat, m.lng], { icon }).addTo(map);
-      marker.on('click', () => setSelected(m));
-      markersRef.current.push(marker);
+      marker.on('click', () => openProfile(m));
     });
-
     leafletMap.current = map;
   }
 
-  function handleChat(matchId) {
-    navigate(`/chat/${matchId}`);
+  async function openProfile(person) {
+    setSelected(person);
+    setRequestStatus(null);
+    // Check if already sent request
+    const { data: swipe } = await supabase.from('swipes')
+      .select('*').eq('user_id', session.user.id).eq('target_id', person.id).single();
+    if (swipe?.liked) setRequestStatus(person.isMatch ? 'match' : 'sent');
+  }
+
+  async function requestConnection() {
+    if (!selected || requesting) return;
+    setRequesting(true);
+    await supabase.from('swipes').upsert({ user_id: session.user.id, target_id: selected.id, liked: true });
+
+    // Check if they already liked me
+    const { data: theirSwipe } = await supabase.from('swipes')
+      .select('*').eq('user_id', selected.id).eq('target_id', session.user.id).eq('liked', true).single();
+
+    if (theirSwipe) {
+      await supabase.from('matches').insert({ user1_id: session.user.id, user2_id: selected.id, created_at: new Date().toISOString() });
+      setSelected(s => ({ ...s, isMatch: true }));
+      setRequestStatus('match');
+    } else {
+      setRequestStatus('sent');
+    }
+    setRequesting(false);
   }
 
   return (
     <div style={styles.page}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Mapa de Conexões</h2>
-        <p style={styles.sub}>
-          <span style={styles.dotPurple}></span> Matches &nbsp;
-          <span style={styles.dotGray}></span> Mesma instituição
-        </p>
+      <div style={styles.topBar}>
+        <h2 style={styles.title}>🗺️ StudyMatch</h2>
+        {loading && <span style={styles.loadingBadge}>Localizando pessoas...</span>}
       </div>
 
-      {loading && (
-        <div style={styles.loading}>
-          <div style={styles.spinner}></div>
-          <p>Localizando pessoas próximas...</p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        </div>
-      )}
-
-      <div ref={mapRef} style={{ ...styles.map, opacity: loading ? 0 : 1 }} />
+      <div ref={mapRef} style={styles.map} />
 
       {selected && (
-        <div style={styles.card}>
-          <button style={styles.closeBtn} onClick={() => setSelected(null)}>✕</button>
-          <div style={styles.cardContent}>
-            <img src={selected.avatar_url} alt="" style={styles.avatar} />
-            <div style={styles.cardInfo}>
-              <div style={styles.cardHeader}>
+        <div style={styles.cardOverlay}>
+          <div style={styles.card}>
+            <button style={styles.closeBtn} onClick={() => setSelected(null)}><X size={16} /></button>
+
+            <div style={styles.cardTop}>
+              <img src={selected.avatar_url} alt="" style={styles.avatar} />
+              <div style={styles.cardInfo}>
                 <h3 style={styles.cardName}>{selected.name}</h3>
-                {selected.isMatch && <span style={styles.matchBadge}>✓ Match</span>}
-              </div>
-              {selected.institution && <p style={styles.institution}>📍 {selected.institution}</p>}
-              <div style={styles.tags}>
-                {(selected.can_help || []).filter(s => myProfile?.need_help?.includes(s)).map(s => (
-                  <span key={s} style={styles.tag}>{s}</span>
-                ))}
+                <p style={styles.cardType}>
+                  {selected.type === 'estudante' ? '📚 Estudante' : selected.type === 'universitario' ? '🎓 Universitário' : '💼 Profissional'}
+                </p>
+                {selected.institution && <p style={styles.cardInst}>📍 {selected.institution}</p>}
               </div>
             </div>
+
+            {selected.bio && <p style={styles.bio}>{selected.bio}</p>}
+
+            <div style={styles.skillsRow}>
+              <div style={styles.skillCol}>
+                <div style={styles.skillHeader}><BookOpen size={13} color="#6C63FF" /><span style={{ color: '#6C63FF', fontWeight: 600, fontSize: 12 }}>Precisa de ajuda em</span></div>
+                <div style={styles.tags}>
+                  {(selected.need_help || []).slice(0, 3).map(s => <span key={s} style={styles.tagPurple}>{s}</span>)}
+                </div>
+              </div>
+              <div style={styles.skillCol}>
+                <div style={styles.skillHeader}><Briefcase size={13} color="#00C9A7" /><span style={{ color: '#00A382', fontWeight: 600, fontSize: 12 }}>Pode ajudar com</span></div>
+                <div style={styles.tags}>
+                  {(selected.can_help || []).filter(s => myProfile?.need_help?.includes(s)).slice(0, 3).map(s => <span key={s} style={styles.tagGreen}>{s}</span>)}
+                </div>
+              </div>
+            </div>
+
+            {selected.isMatch ? (
+              <button style={styles.btnChat} onClick={() => navigate(`/chat/${selected.matchId}`)}>
+                <MessageCircle size={18} /> Enviar mensagem
+              </button>
+            ) : requestStatus === 'sent' ? (
+              <div style={styles.sentMsg}>✅ Solicitação enviada! Aguardando resposta.</div>
+            ) : (
+              <button style={styles.btnConnect} onClick={requestConnection} disabled={requesting}>
+                <UserPlus size={18} /> {requesting ? 'Enviando...' : 'Solicitar Conexão'}
+              </button>
+            )}
           </div>
-          {selected.isMatch && selected.matchId && (
-            <button className="btn-primary" style={{ marginTop: 12 }}
-              onClick={() => handleChat(selected.matchId)}>
-              💬 Enviar mensagem
-            </button>
-          )}
-          {!selected.isMatch && (
-            <p style={styles.hint}>Vá para Descobrir para dar match com {selected.name.split(' ')[0]}!</p>
-          )}
         </div>
       )}
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
 
 const styles = {
-  page: { height: '100vh', display: 'flex', flexDirection: 'column', paddingTop: 0 },
-  header: { padding: '16px 20px 8px', background: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', zIndex: 10 },
+  page: { height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' },
+  topBar: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', zIndex: 10 },
   title: { fontFamily: 'Sora, sans-serif', fontSize: 20, color: '#1A1A2E' },
-  sub: { fontSize: 13, color: '#6B7280', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 },
-  dotPurple: { display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: '#6C63FF' },
-  dotGray: { display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: '#9CA3AF' },
-  map: { flex: 1, transition: 'opacity 0.5s', zIndex: 1 },
-  loading: { position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center', color: '#6B7280', zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 },
-  spinner: { width: 40, height: 40, border: '4px solid #EEF0FF', borderTop: '4px solid #6C63FF', borderRadius: '50%', animation: 'spin 1s linear infinite' },
-  card: { position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 32px)', maxWidth: 440, background: 'white', borderRadius: 16, padding: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', zIndex: 100 },
-  closeBtn: { position: 'absolute', top: 12, right: 12, background: '#F3F4F6', color: '#374151', width: 28, height: 28, borderRadius: '50%', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  cardContent: { display: 'flex', gap: 12, alignItems: 'flex-start' },
-  avatar: { width: 52, height: 52, borderRadius: '50%', flexShrink: 0 },
+  loadingBadge: { background: '#EEF0FF', color: '#6C63FF', fontSize: 12, fontWeight: 600, padding: '4px 12px', borderRadius: 20 },
+  map: { flex: 1, zIndex: 1 },
+  cardOverlay: { position: 'fixed', bottom: 80, left: 0, right: 0, display: 'flex', justifyContent: 'center', padding: '0 16px', zIndex: 100 },
+  card: { background: 'white', borderRadius: 20, padding: 20, width: '100%', maxWidth: 440, boxShadow: '0 8px 40px rgba(0,0,0,0.18)', position: 'relative' },
+  closeBtn: { position: 'absolute', top: 12, right: 12, background: '#F3F4F6', border: 'none', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
+  cardTop: { display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 12 },
+  avatar: { width: 60, height: 60, borderRadius: '50%', border: '2px solid #6C63FF', flexShrink: 0, objectFit: 'cover' },
   cardInfo: { flex: 1 },
-  cardHeader: { display: 'flex', alignItems: 'center', gap: 8 },
-  cardName: { fontFamily: 'Sora, sans-serif', fontSize: 16, color: '#1A1A2E' },
-  matchBadge: { background: '#EEF0FF', color: '#6C63FF', fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20 },
-  institution: { color: '#6B7280', fontSize: 13, margin: '4px 0 8px' },
+  cardName: { fontFamily: 'Sora, sans-serif', fontSize: 17, color: '#1A1A2E' },
+  cardType: { fontSize: 13, color: '#6B7280', margin: '2px 0' },
+  cardInst: { fontSize: 13, color: '#9CA3AF' },
+  bio: { fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 12 },
+  skillsRow: { display: 'flex', gap: 12, marginBottom: 16 },
+  skillCol: { flex: 1 },
+  skillHeader: { display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 },
   tags: { display: 'flex', flexWrap: 'wrap', gap: 4 },
-  tag: { background: '#EEF0FF', color: '#6C63FF', padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 500 },
-  hint: { color: '#6B7280', fontSize: 13, textAlign: 'center', marginTop: 12 },
+  tagPurple: { background: '#EEF0FF', color: '#6C63FF', padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 500 },
+  tagGreen: { background: '#E0FBF5', color: '#00A382', padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 500 },
+  btnConnect: { width: '100%', background: 'linear-gradient(135deg, #6C63FF, #00C9A7)', color: 'white', padding: '14px', borderRadius: 14, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  btnChat: { width: '100%', background: '#6C63FF', color: 'white', padding: '14px', borderRadius: 14, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  sentMsg: { background: '#F0FDF4', color: '#16A34A', padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 500, textAlign: 'center' },
 };

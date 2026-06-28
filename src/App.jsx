@@ -9,6 +9,8 @@ import Chat from './pages/Chat.jsx';
 import Profile from './pages/Profile.jsx';
 import Map from './pages/Map.jsx';
 import Places from './pages/Places.jsx';
+import Rooms from './pages/Rooms.jsx';
+import Forum from './pages/Forum.jsx';
 import Navbar from './components/Navbar.jsx';
 
 export default function App() {
@@ -58,6 +60,8 @@ export default function App() {
         <Route path="/chat/:matchId" element={auth(<Chat session={session} />)} />
         <Route path="/profile" element={auth(<Profile session={session} />)} />
         <Route path="/places" element={auth(<Places session={session} />)} />
+        <Route path="/rooms" element={auth(<Rooms />)} />
+        <Route path="/forum" element={auth(<Forum />)} />
       </Routes>
     </BrowserRouter>
   );
