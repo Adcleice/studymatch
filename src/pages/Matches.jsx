@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { MessageCircle } from 'lucide-react';
 
 export default function Matches({ session }) {
   const [matches, setMatches] = useState([]);
@@ -16,47 +15,29 @@ export default function Matches({ session }) {
       .or(`user1_id.eq.${session.user.id},user2_id.eq.${session.user.id}`)
       .order('created_at', { ascending: false });
     if (!data) { setLoading(false); return; }
-
     const enriched = await Promise.all(data.map(async match => {
       const otherId = match.user1_id === session.user.id ? match.user2_id : match.user1_id;
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', otherId).single();
-
-      // Buscar última mensagem
-      const { data: msgs } = await supabase.from('messages')
-        .select('*').eq('match_id', match.id)
-        .order('created_at', { ascending: false }).limit(1);
+      const { data: msgs } = await supabase.from('messages').select('*').eq('match_id', match.id).order('created_at', { ascending: false }).limit(1);
       const lastMsg = msgs?.[0] || null;
-
-      // Contar mensagens não lidas (enviadas pelo outro, depois do meu último acesso)
-      const { count } = await supabase.from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('match_id', match.id)
-        .neq('sender_id', session.user.id)
-        .eq('read', false);
-
+      const { count } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('match_id', match.id).neq('sender_id', session.user.id).eq('read', false);
       return { ...match, profile, lastMsg, unread: count || 0 };
     }));
-
     setMatches(enriched.filter(m => m.profile));
     setLoading(false);
   }
 
   async function openChat(matchId) {
-    // Marcar mensagens como lidas
-    await supabase.from('messages')
-      .update({ read: true })
-      .eq('match_id', matchId)
-      .neq('sender_id', session.user.id);
+    await supabase.from('messages').update({ read: true }).eq('match_id', matchId).neq('sender_id', session.user.id);
     navigate(`/chat/${matchId}`);
   }
 
-  if (loading) return <div style={styles.center}><p>Carregando matches...</p></div>;
+  if (loading) return <div style={styles.center}><p>Carregando...</p></div>;
 
   return (
     <div style={styles.page}>
       <h2 style={styles.heading}>Suas Conexões</h2>
       <p style={styles.sub}>{matches.length} pessoa{matches.length !== 1 ? 's' : ''} conectada{matches.length !== 1 ? 's' : ''}</p>
-
       {matches.length === 0 ? (
         <div className="card" style={styles.empty}>
           <span style={{ fontSize: 64 }}>💫</span>
@@ -74,21 +55,13 @@ export default function Matches({ session }) {
               <div style={styles.info}>
                 <div style={styles.nameRow}>
                   <h3 style={{ ...styles.name, fontWeight: match.unread > 0 ? 700 : 500 }}>{match.profile.name}</h3>
-                  {match.lastMsg && (
-                    <span style={styles.time}>
-                      {new Date(match.lastMsg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  )}
+                  {match.lastMsg && <span style={styles.time}>{new Date(match.lastMsg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>}
                 </div>
                 <div style={styles.previewRow}>
                   <p style={{ ...styles.preview, fontWeight: match.unread > 0 ? 600 : 400, color: match.unread > 0 ? '#1A1A2E' : '#9CA3AF' }}>
-                    {match.lastMsg
-                      ? (match.lastMsg.sender_id === session.user.id ? 'Você: ' : '') + match.lastMsg.content
-                      : 'Toque para iniciar conversa'}
+                    {match.lastMsg ? (match.lastMsg.sender_id === session.user.id ? 'Você: ' : '') + match.lastMsg.content : 'Toque para iniciar conversa'}
                   </p>
-                  {match.unread > 0 && (
-                    <div style={styles.unreadBadge}>{match.unread}</div>
-                  )}
+                  {match.unread > 0 && <div style={styles.unreadBadge}>{match.unread}</div>}
                 </div>
               </div>
             </div>
