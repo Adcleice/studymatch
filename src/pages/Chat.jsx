@@ -23,6 +23,14 @@ export default function Chat({ session }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  async function markAsRead() {
+    await supabase.from('messages')
+      .update({ read: true })
+      .eq('match_id', matchId)
+      .neq('sender_id', session.user.id)
+      .eq('read', false);
+  }
+
   async function loadChat() {
     const { data: match, error } = await supabase.from('matches').select('*').eq('id', matchId).single();
     if (error || !match) { navigate('/matches'); return; }
@@ -31,15 +39,15 @@ export default function Chat({ session }) {
     setOtherUser(profile);
     const { data: msgs } = await supabase.from('messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
     setMessages(msgs || []);
-// Marcar todas como lidas ao abrir
-await supabase.from('messages')
-  .update({ read: true })
-  .eq('match_id', matchId)
-  .neq('sender_id', session.user.id);
-setLoading(false);
+    await markAsRead();
+    setLoading(false);
+
     const channel = supabase.channel(`chat-${matchId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `match_id=eq.${matchId}` },
-        payload => setMessages(prev => prev.find(m => m.id === payload.new.id) ? prev : [...prev, payload.new]))
+        async (payload) => {
+          setMessages(prev => prev.find(m => m.id === payload.new.id) ? prev : [...prev, payload.new]);
+          if (payload.new.sender_id !== session.user.id) await markAsRead();
+        })
       .subscribe();
     channelRef.current = channel;
   }
@@ -70,7 +78,6 @@ setLoading(false);
           </div>
         </>}
       </div>
-
       <div style={styles.messages}>
         {messages.length === 0 && (
           <div style={styles.empty}>
@@ -91,20 +98,11 @@ setLoading(false);
         })}
         <div ref={bottomRef} />
       </div>
-
       <div style={styles.inputArea}>
-        <input
-          placeholder="Digite uma mensagem..."
-          value={text}
-          onChange={e => setText(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          style={styles.input}
-          disabled={sending}
-        />
+        <input placeholder="Digite uma mensagem..." value={text} onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()} style={styles.input} disabled={sending} />
         <button style={{ ...styles.sendBtn, opacity: !text.trim() || sending ? 0.5 : 1 }}
-          onClick={sendMessage} disabled={!text.trim() || sending}>
-          <Send size={18} />
-        </button>
+          onClick={sendMessage} disabled={!text.trim() || sending}><Send size={18} /></button>
       </div>
     </div>
   );
