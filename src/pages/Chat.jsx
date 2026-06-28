@@ -31,7 +31,12 @@ export default function Chat({ session }) {
     setOtherUser(profile);
     const { data: msgs } = await supabase.from('messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
     setMessages(msgs || []);
-    setLoading(false);
+// Marcar todas como lidas ao abrir
+await supabase.from('messages')
+  .update({ read: true })
+  .eq('match_id', matchId)
+  .neq('sender_id', session.user.id);
+setLoading(false);
     const channel = supabase.channel(`chat-${matchId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `match_id=eq.${matchId}` },
         payload => setMessages(prev => prev.find(m => m.id === payload.new.id) ? prev : [...prev, payload.new]))
