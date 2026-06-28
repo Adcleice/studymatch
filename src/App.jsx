@@ -4,7 +4,6 @@ import { supabase } from './lib/supabase.js';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Setup from './pages/Setup.jsx';
-import Discover from './pages/Discover.jsx';
 import Matches from './pages/Matches.jsx';
 import Chat from './pages/Chat.jsx';
 import Profile from './pages/Profile.jsx';
@@ -54,11 +53,10 @@ export default function App() {
         <Route path="/login" element={!session ? <Login /> : <Navigate to="/" />} />
         <Route path="/register" element={!session ? <Register /> : <Navigate to="/" />} />
         <Route path="/setup" element={session && !hasProfile ? <Setup session={session} onComplete={() => setHasProfile(true)} /> : <Navigate to={session ? '/' : '/login'} />} />
-        <Route path="/" element={auth(<Discover session={session} />)} />
+        <Route path="/" element={auth(<Map session={session} />)} />
         <Route path="/matches" element={auth(<Matches session={session} />)} />
         <Route path="/chat/:matchId" element={auth(<Chat session={session} />)} />
         <Route path="/profile" element={auth(<Profile session={session} />)} />
-        <Route path="/map" element={auth(<Map session={session} />)} />
         <Route path="/places" element={auth(<Places session={session} />)} />
       </Routes>
     </BrowserRouter>

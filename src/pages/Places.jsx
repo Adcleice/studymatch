@@ -91,6 +91,14 @@ export default function Places({ session }) {
     setSaving(false);
   }
 
+  async function deletePlace(placeId) {
+    if (!window.confirm("Tem certeza que quer excluir este lugar?")) return;
+    await supabase.from("place_reviews").delete().eq("place_id", placeId);
+    await supabase.from("places").delete().eq("id", placeId);
+    setSelected(null);
+    await loadPlaces();
+  }
+
   async function addPlace() {
     if (!newPlace.name || !newPlace.city) return;
     setSaving(true);
@@ -264,6 +272,12 @@ export default function Places({ session }) {
                 </button>
               </div>
 
+              {selected.added_by === session.user.id && (
+                <button onClick={() => deletePlace(selected.id)}
+                  style={{ background: "#FEE2E2", color: "#EF4444", border: "none", borderRadius: 10, padding: "10px 16px", fontWeight: 600, fontSize: 13, cursor: "pointer", width: "100%", marginBottom: 16 }}>
+                  🗑️ Excluir este lugar
+                </button>
+              )}
               <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 12 }}>Avaliações ({reviews.length})</p>
               {reviews.length === 0 && <p style={{ color: '#9CA3AF', fontSize: 14 }}>Nenhuma avaliação ainda!</p>}
               {reviews.map(r => (
