@@ -20,7 +20,11 @@ export default function Matches({ session }) {
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', otherId).single();
       const { data: msgs } = await supabase.from('messages').select('*').eq('match_id', match.id).order('created_at', { ascending: false }).limit(1);
       const lastMsg = msgs?.[0] || null;
-      const { count } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('match_id', match.id).neq('sender_id', session.user.id).eq('read', false);
+      const { count } = await supabase.from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('match_id', match.id)
+        .neq('sender_id', session.user.id)
+        .eq('read', false);
       return { ...match, profile, lastMsg, unread: count || 0 };
     }));
     setMatches(enriched.filter(m => m.profile));
@@ -28,7 +32,12 @@ export default function Matches({ session }) {
   }
 
   async function openChat(matchId) {
-    await supabase.from('messages').update({ read: true }).eq('match_id', matchId).neq('sender_id', session.user.id);
+    // Marca como lido e atualiza a lista
+    await supabase.from('messages')
+      .update({ read: true })
+      .eq('match_id', matchId)
+      .neq('sender_id', session.user.id);
+    setMatches(prev => prev.map(m => m.id === matchId ? { ...m, unread: 0 } : m));
     navigate(`/chat/${matchId}`);
   }
 
