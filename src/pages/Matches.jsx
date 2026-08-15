@@ -17,7 +17,14 @@ export default function Matches({ session }) {
       return {...match,profile,lastMsg:msgs?.[0]||null,unread:count||0};
     })); setMatches(enriched.filter(m=>m.profile)); setLoading(false);
   }
-  async function openChat(matchId){await supabase.from('messages').update({read:true}).eq('match_id',matchId).neq('sender_id',session.user.id);setMatches(p=>p.map(m=>m.id===matchId?{...m,unread:0}:m));navigate(`/chat/${matchId}`);}
+  async function openChat(matchId){
+    const { error } = await supabase.rpc('mark_match_messages_read', { p_match_id: matchId });
+    if (!error) {
+      setMatches(p=>p.map(m=>m.id===matchId?{...m,unread:0}:m));
+      window.dispatchEvent(new CustomEvent('studymatch:messages-read',{detail:{matchId}}));
+    }
+    navigate(`/chat/${matchId}`);
+  }
   const filtered=matches.filter(m=>m.profile.name?.toLowerCase().includes(search.toLowerCase()));
   return <div style={styles.page}>
     <div style={styles.header}><p style={styles.eyebrow}>NETWORKING</p><h2 style={styles.heading}>Minhas Conexões</h2><p style={styles.sub}>Converse, combine estudos e troque conhecimento.</p>
