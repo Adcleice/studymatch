@@ -54,7 +54,9 @@ create policy "rooms create own" on public.study_rooms for insert to authenticat
 drop policy if exists "rooms update creator" on public.study_rooms;
 create policy "rooms update creator" on public.study_rooms for update to authenticated using (auth.uid() = created_by) with check (auth.uid() = created_by);
 
+-- Campos usados pela interface de Lugares.
 alter table public.places add column if not exists state text;
+alter table public.places add column if not exists photo_url text;
 create unique index if not exists place_reviews_user_place_unique on public.place_reviews(user_id, place_id);
 
 -- STORAGE: cria os buckets que o app usa para fotos.
