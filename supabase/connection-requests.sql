@@ -32,30 +32,11 @@ declare
 begin
   if v_user is null then raise exception 'Usuário não autenticado'; end if;
   if p_recipient_id = v_user then raise exception 'Você não pode conectar consigo mesmo'; end if;
-
-  if exists (
-    select 1 from public.user_blocks
-    where (blocker_id=v_user and blocked_id=p_recipient_id)
-       or (blocker_id=p_recipient_id and blocked_id=v_user)
-  ) then raise exception 'Conexão indisponível'; end if;
-
-  if exists (
-    select 1 from public.matches
-    where (user1_id=v_user and user2_id=p_recipient_id)
-       or (user1_id=p_recipient_id and user2_id=v_user)
-  ) then raise exception 'Vocês já estão conectados'; end if;
-
-  select id into v_id from public.connection_requests
-  where status='pending'
-    and ((requester_id=v_user and recipient_id=p_recipient_id)
-      or (requester_id=p_recipient_id and recipient_id=v_user))
-  limit 1;
-
+  if exists (select 1 from public.user_blocks where (blocker_id=v_user and blocked_id=p_recipient_id) or (blocker_id=p_recipient_id and blocked_id=v_user)) then raise exception 'Conexão indisponível'; end if;
+  if exists (select 1 from public.matches where (user1_id=v_user and user2_id=p_recipient_id) or (user1_id=p_recipient_id and user2_id=v_user)) then raise exception 'Vocês já estão conectados'; end if;
+  select id into v_id from public.connection_requests where status='pending' and ((requester_id=v_user and recipient_id=p_recipient_id) or (requester_id=p_recipient_id and recipient_id=v_user)) limit 1;
   if v_id is not null then return v_id; end if;
-
-  insert into public.connection_requests(requester_id,recipient_id)
-  values(v_user,p_recipient_id)
-  returning id into v_id;
+  insert into public.connection_requests(requester_id,recipient_id) values(v_user,p_recipient_id) returning id into v_id;
   return v_id;
 end;
 $$;
@@ -75,21 +56,9 @@ begin
   if v_req.id is null then raise exception 'Solicitação não encontrada'; end if;
   if v_req.recipient_id <> v_user then raise exception 'Sem permissão'; end if;
   if v_req.status <> 'pending' then raise exception 'Solicitação já respondida'; end if;
-
-  select id into v_match from public.matches
-  where (user1_id=v_req.requester_id and user2_id=v_req.recipient_id)
-     or (user1_id=v_req.recipient_id and user2_id=v_req.requester_id)
-  limit 1;
-
-  if v_match is null then
-    insert into public.matches(user1_id,user2_id,created_at)
-    values(v_req.requester_id,v_req.recipient_id,now()) returning id into v_match;
-  end if;
-
-  update public.connection_requests
-  set status='accepted', responded_at=now()
-  where id=p_request_id;
-
+  select id into v_match from public.matches where (user1_id=v_req.requester_id and user2_id=v_req.recipient_id) or (user1_id=v_req.recipient_id and user2_id=v_req.requester_id) limit 1;
+  if v_match is null then insert into public.matches(user1_id,user2_id,created_at) values(v_req.requester_id,v_req.recipient_id,now()) returning id into v_match; end if;
+  update public.connection_requests set status='accepted', responded_at=now() where id=p_request_id;
   return v_match;
 end;
 $$;
@@ -101,9 +70,7 @@ security definer
 set search_path = public
 as $$
 begin
-  update public.connection_requests
-  set status='rejected', responded_at=now()
-  where id=p_request_id and recipient_id=auth.uid() and status='pending';
+  update public.connection_requests set status='rejected', responded_at=now() where id=p_request_id and recipient_id=auth.uid() and status='pending';
   if not found then raise exception 'Solicitação não encontrada ou sem permissão'; end if;
 end;
 $$;
@@ -115,9 +82,7 @@ security definer
 set search_path = public
 as $$
 begin
-  update public.connection_requests
-  set status='cancelled', responded_at=now()
-  where id=p_request_id and requester_id=auth.uid() and status='pending';
+  update public.connection_requests set status='cancelled', responded_at=now() where id=p_request_id and requester_id=auth.uid() and status='pending';
   if not found then raise exception 'Solicitação não encontrada ou sem permissão'; end if;
 end;
 $$;
@@ -126,3 +91,13 @@ grant execute on function public.send_connection_request(uuid) to authenticated;
 grant execute on function public.accept_connection_request(uuid) to authenticated;
 grant execute on function public.reject_connection_request(uuid) to authenticated;
 grant execute on function public.cancel_connection_request(uuid) to authenticated;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname='supabase_realtime' and schemaname='public' and tablename='connection_requests'
+  ) then
+    alter publication supabase_realtime add table public.connection_requests;
+  end if;
+end $$;
