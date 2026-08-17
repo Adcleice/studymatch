@@ -1,5 +1,5 @@
-const CACHE='studymatch-v4';
-const SHELL=['/','/manifest.webmanifest','/favicon.svg','/studymatch-logo-data.txt'];
+const CACHE='studymatch-v5';
+const SHELL=['/','/manifest.webmanifest','/favicon.svg','/studymatch-logo.svg'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));
