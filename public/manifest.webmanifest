@@ -4,15 +4,15 @@
   "description": "Rede de estudos, networking e troca de conhecimento.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F8FC",
-  "theme_color": "#0D4D94",
+  "background_color": "#F4F8FC",
+  "theme_color": "#082A55",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/studymatch-logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
