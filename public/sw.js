@@ -1,5 +1,5 @@
-const CACHE='studymatch-v3';
-const SHELL=['/','/manifest.webmanifest','/favicon.svg','/studymatch-logo.svg'];
+const CACHE='studymatch-v4';
+const SHELL=['/','/manifest.webmanifest','/favicon.svg','/studymatch-logo-data.txt'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));
@@ -18,7 +18,7 @@ self.addEventListener('fetch',event=>{
   if(new URL(event.request.url).origin!==self.location.origin)return;
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request,{cache:'no-store'})
       .then(response=>{
         const copy=response.clone();
         caches.open(CACHE).then(cache=>cache.put(event.request,copy));
