@@ -1,65 +1,7 @@
 import crypto from 'node:crypto';
+import{createClient}from'@supabase/supabase-js';
 
-function base64url(input){
-  return Buffer.from(typeof input==='string'?input:JSON.stringify(input)).toString('base64url');
-}
+function base64url(input){return Buffer.from(typeof input==='string'?input:JSON.stringify(input)).toString('base64url')}
+function signJwt(payload,privateKey,kid){const header={alg:'RS256',kid,typ:'JWT'},unsigned=`${base64url(header)}.${base64url(payload)}`,signer=crypto.createSign('RSA-SHA256');signer.update(unsigned);signer.end();const signature=signer.sign(privateKey).toString('base64url');return `${unsigned}.${signature}`}
 
-function signJwt(payload,privateKey,kid){
-  const header={alg:'RS256',kid,typ:'JWT'};
-  const unsigned=`${base64url(header)}.${base64url(payload)}`;
-  const signer=crypto.createSign('RSA-SHA256');
-  signer.update(unsigned);
-  signer.end();
-  const signature=signer.sign(privateKey).toString('base64url');
-  return `${unsigned}.${signature}`;
-}
-
-export default async function handler(req,res){
-  if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});
-
-  const appId=process.env.JAAS_APP_ID;
-  const kid=process.env.JAAS_KEY_ID;
-  const rawKey=process.env.JAAS_PRIVATE_KEY;
-  if(!appId||!kid||!rawKey)return res.status(500).json({error:'JaaS não configurado na Vercel'});
-
-  try{
-    const {room,userId,userName,userEmail,avatarUrl}=req.body||{};
-    if(!room)return res.status(400).json({error:'Sala inválida'});
-
-    const safeRoom=String(room).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,100);
-    if(!safeRoom)return res.status(400).json({error:'Nome de sala inválido'});
-
-    const now=Math.floor(Date.now()/1000);
-    const payload={
-      aud:'jitsi',
-      iss:'chat',
-      sub:appId,
-      room:safeRoom,
-      nbf:now-10,
-      exp:now+(6*60*60),
-      context:{
-        features:{
-          livestreaming:false,
-          recording:false,
-          transcription:false,
-          'outbound-call':false,
-          'file-upload':false,
-          'list-visitors':true
-        },
-        user:{
-          id:userId||'studymatch-user',
-          name:userName||'StudyMatch',
-          email:userEmail||'',
-          avatar:avatarUrl||'',
-          moderator:true
-        }
-      }
-    };
-
-    const privateKey=rawKey.replace(/\\n/g,'\n');
-    const token=signJwt(payload,privateKey,kid);
-    return res.status(200).json({token,appId,room:safeRoom});
-  }catch(error){
-    return res.status(500).json({error:error?.message||'Erro ao gerar acesso à sala'});
-  }
-}
+export default async function handler(req,res){if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});const appId=process.env.JAAS_APP_ID,kid=process.env.JAAS_KEY_ID,rawKey=process.env.JAAS_PRIVATE_KEY,supabaseUrl=process.env.SUPABASE_URL||process.env.VITE_SUPABASE_URL,anonKey=process.env.SUPABASE_ANON_KEY||process.env.VITE_SUPABASE_ANON_KEY;if(!appId||!kid||!rawKey)return res.status(500).json({error:'JaaS não configurado na Vercel'});if(!supabaseUrl||!anonKey)return res.status(500).json({error:'Supabase não configurado no servidor'});try{const authHeader=req.headers.authorization||'',accessToken=authHeader.startsWith('Bearer ')?authHeader.slice(7):'';if(!accessToken)return res.status(401).json({error:'Sessão necessária para entrar na sala'});const sb=createClient(supabaseUrl,anonKey,{auth:{persistSession:false,autoRefreshToken:false},global:{headers:{Authorization:`Bearer ${accessToken}`}}});const{data:{user},error:userError}=await sb.auth.getUser(accessToken);if(userError||!user)return res.status(401).json({error:'Sessão inválida ou expirada'});const{room}=req.body||{};if(!room)return res.status(400).json({error:'Sala inválida'});const safeRoom=String(room).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,100);if(!safeRoom)return res.status(400).json({error:'Nome de sala inválido'});const{data:profile}=await sb.from('profiles').select('name,avatar_url').eq('id',user.id).maybeSingle();const now=Math.floor(Date.now()/1000),payload={aud:'jitsi',iss:'chat',sub:appId,room:safeRoom,nbf:now-10,exp:now+(6*60*60),context:{features:{livestreaming:false,recording:false,transcription:false,'outbound-call':false,'file-upload':false,'list-visitors':true},user:{id:user.id,name:profile?.name||user.email?.split('@')[0]||'StudyMatch',email:user.email||'',avatar:profile?.avatar_url||'',moderator:true}}};const privateKey=rawKey.replace(/\\n/g,'\n'),token=signJwt(payload,privateKey,kid);return res.status(200).json({token,appId,room:safeRoom})}catch(error){return res.status(500).json({error:error?.message||'Erro ao gerar acesso à sala'})}}
