@@ -1,0 +1,8 @@
+{
+  "appId": "com.studymatch.app",
+  "appName": "StudyMatch",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
