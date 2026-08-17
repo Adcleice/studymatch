@@ -1,2 +1,2 @@
 export async function shareItem({title,text,url}){const target=url||window.location.href;try{if(navigator.share){await navigator.share({title,text,url:target});return true}await navigator.clipboard.writeText(target);alert('Link copiado.');return true}catch(e){if(e?.name==='AbortError')return false;try{await navigator.clipboard.writeText(target);alert('Link copiado.');return true}catch{return false}}}
-export function appUrl(path=''){return `${window.location.origin}${path}`}
+export function appUrl(path=''){const m=String(path).match(/^\/forum\?post=([^&]+)/);if(m)return `${window.location.origin}/forum/post/${encodeURIComponent(m[1])}`;return `${window.location.origin}${path}`}
