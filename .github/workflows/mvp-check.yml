@@ -16,6 +16,13 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Patch React Router lockfile
+        run: npm install react-router-dom@^7.18.2 --package-lock-only
+      - name: Upload patched lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: patched-package-lock
+          path: package-lock.json
       - name: Install dependencies
         run: npm ci
       - name: Build
