@@ -1,5 +1,5 @@
 {
-  "buildCommand": "vite build && cp public/waitlist.html dist/waitlist.html",
+  "buildCommand": "vite build",
   "outputDirectory": "dist",
   "git": {
     "deploymentEnabled": false
