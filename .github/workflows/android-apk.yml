@@ -46,6 +46,19 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Apply official StudyMatch launcher icon
+        run: |
+          mkdir -p android/app/src/main/res/drawable-nodpi
+          base64 -d public/studymatch-logo-data.txt > android/app/src/main/res/drawable-nodpi/studymatch_icon.png
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('android/app/src/main/AndroidManifest.xml')
+          text=p.read_text()
+          text=text.replace('android:icon="@mipmap/ic_launcher"','android:icon="@drawable/studymatch_icon"')
+          text=text.replace('android:roundIcon="@mipmap/ic_launcher_round"','android:roundIcon="@drawable/studymatch_icon"')
+          p.write_text(text)
+          PY
+
       - name: Build installable APK
         run: |
           cd android
