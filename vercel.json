@@ -2,7 +2,7 @@
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": true
   },
   "rewrites": [
     { "source": "/waitlist", "destination": "/waitlist.html" },
