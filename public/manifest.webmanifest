@@ -1,12 +1,17 @@
 {
+  "id": "/",
   "name": "StudyMatch",
   "short_name": "StudyMatch",
-  "description": "Rede de estudos, networking e troca de conhecimento.",
+  "description": "Rede para estudar, trocar conhecimento e criar conexões úteis.",
+  "lang": "pt-BR",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#F4F8FC",
   "theme_color": "#082A55",
   "orientation": "portrait-primary",
+  "categories": ["education", "social", "productivity"],
   "icons": [
     {
       "src": "/studymatch-logo.svg",
