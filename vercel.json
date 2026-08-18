@@ -2,7 +2,7 @@
   "buildCommand": "vite build && cp public/waitlist.html dist/waitlist.html",
   "outputDirectory": "dist",
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": true
   },
   "rewrites": [
     { "source": "/waitlist", "destination": "/waitlist.html" },
