@@ -1,0 +1,5 @@
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(20,86,160,.28);outline-offset:2px}
+button[aria-label]{min-width:32px;min-height:32px}
+img{max-width:100%}
+@media(pointer:coarse){button{min-height:36px}}
+@media(max-width:600px){body{overscroll-behavior-y:none}input,textarea,select{min-height:44px}}
