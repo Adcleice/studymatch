@@ -29,24 +29,41 @@ with check (
 );
 
 -- 2) Mantém reply_count no banco, sem depender do cliente alterar posts de terceiros.
+create or replace function public.recalculate_forum_reply_count(p_post_id uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update public.forum_posts p
+  set reply_count = (
+    select count(*)::integer
+    from public.forum_replies r
+    where r.post_id = p_post_id
+      and coalesce(r.hidden,false) = false
+  )
+  where p.id = p_post_id;
+$$;
+
 create or replace function public.sync_forum_reply_count()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
-declare
-  v_post_id uuid := coalesce(new.post_id, old.post_id);
 begin
-  update public.forum_posts p
-  set reply_count = (
-    select count(*)::integer
-    from public.forum_replies r
-    where r.post_id = v_post_id
-      and coalesce(r.hidden,false) = false
-  )
-  where p.id = v_post_id;
-  return coalesce(new,old);
+  if tg_op = 'DELETE' then
+    perform public.recalculate_forum_reply_count(old.post_id);
+    return old;
+  end if;
+
+  perform public.recalculate_forum_reply_count(new.post_id);
+
+  if tg_op = 'UPDATE' and old.post_id is distinct from new.post_id then
+    perform public.recalculate_forum_reply_count(old.post_id);
+  end if;
+
+  return new;
 end;
 $$;
 
