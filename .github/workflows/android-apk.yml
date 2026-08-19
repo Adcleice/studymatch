@@ -46,24 +46,13 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
-      - name: Apply exact official StudyMatch mark as native Android icon
+      - name: Render official StudyMatch asset for Android
         run: |
-          mkdir -p android/app/src/main/res/drawable
-          cat > android/app/src/main/res/drawable/studymatch_icon.xml <<'XML'
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="108dp"
-              android:height="108dp"
-              android:viewportWidth="742"
-              android:viewportHeight="762">
-            <path android:fillColor="#18B9A9" android:pathData="M220,202 L220,211 L224,220 L261,257 L272,262 L286,261 L311,244 L332,234 L359,228 L383,228 L403,232 L431,244 L454,260 L469,262 L481,257 L518,220 L523,207 L519,194 L497,173 L472,156 L444,145 L433,146 L407,163 L382,170 L346,167 L330,160 L312,147 L293,146 L272,155 L247,172 Z"/>
-            <path android:fillColor="#18B9A9" android:pathData="M219,576 L219,567 L223,558 L260,521 L271,516 L285,517 L310,534 L331,544 L358,550 L382,550 L402,546 L430,534 L453,518 L468,516 L480,521 L517,558 L522,571 L518,584 L496,605 L471,622 L443,633 L432,632 L406,615 L381,608 L345,611 L329,618 L311,631 L292,632 L271,623 L246,606 Z"/>
-            <path android:fillColor="#18B9A9" android:pathData="M356,18 L337,23 L321,33 L309,49 L302,68 L302,92 L309,112 L321,128 L337,138 L356,143 L379,141 L397,133 L411,119 L420,101 L423,80 L419,58 L409,41 L394,28 L376,21 Z"/>
-            <path android:fillColor="#18B9A9" android:pathData="M356,625 L337,630 L321,640 L309,656 L302,675 L302,699 L309,719 L321,735 L337,745 L356,750 L379,748 L397,740 L411,726 L420,708 L423,687 L419,665 L409,648 L394,635 L376,628 Z"/>
-            <path android:fillColor="#FFFFFFFF" android:strokeColor="#CBD5E1" android:strokeWidth="1.5" android:pathData="M494,234 L481,238 L467,251 L456,270 L452,289 L455,311 L469,344 L477,369 L479,390 L476,414 L468,439 L454,470 L452,489 L457,506 L480,532 L495,539 L507,538 L519,531 L542,507 L549,490 L547,473 L533,441 L525,416 L523,391 L525,367 L533,343 L547,312 L549,293 L542,276 L519,249 L507,240 Z"/>
-            <path android:fillColor="#FFFFFFFF" android:strokeColor="#CBD5E1" android:strokeWidth="1.5" android:pathData="M137,234 L124,238 L110,251 L99,270 L95,289 L98,311 L112,344 L120,369 L122,390 L119,414 L111,439 L97,470 L95,489 L100,506 L123,532 L138,539 L150,538 L162,531 L185,507 L192,490 L190,473 L176,441 L168,416 L166,391 L168,367 L176,343 L190,312 L192,293 L185,276 L162,249 L150,240 Z"/>
-            <path android:fillColor="#FFFFFFFF" android:strokeColor="#CBD5E1" android:strokeWidth="1.5" android:pathData="M42,327 L24,334 L10,347 L3,365 L2,385 L8,404 L21,420 L38,430 L58,433 L78,429 L95,418 L107,401 L112,382 L109,362 L99,344 L83,333 L64,327 Z"/>
-            <path android:fillColor="#FFFFFFFF" android:strokeColor="#CBD5E1" android:strokeWidth="1.5" android:pathData="M620,327 L602,334 L588,347 L581,365 L580,385 L586,404 L599,420 L616,430 L636,433 L656,429 L673,418 L685,401 L690,382 L687,362 L677,344 L661,333 L642,327 Z"/>
-          </vector>
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin imagemagick
+          mkdir -p android/app/src/main/res/drawable-nodpi
+          rsvg-convert -w 512 public/studymatch-mark.svg -o /tmp/studymatch_icon_raw.png
+          convert /tmp/studymatch_icon_raw.png -gravity center -background none -extent 512x512 android/app/src/main/res/drawable-nodpi/studymatch_icon.png
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/src/main/AndroidManifest.xml')
