@@ -4,11 +4,6 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'vite.config.*'
       - 'capacitor.config.json'
       - '.github/workflows/android-apk.yml'
   workflow_dispatch:
@@ -44,7 +39,7 @@ jobs:
         run: npm ci
       - name: Install Capacitor Android
         run: npm install --no-save @capacitor/core@8.4.2 @capacitor/cli@8.4.2 @capacitor/android@8.4.2
-      - name: Build web app
+      - name: Build web fallback
         run: npm run build
       - name: Create Android project
         run: |
