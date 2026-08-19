@@ -21,54 +21,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
-
       - name: Restore stable beta signing key
         uses: actions/cache@v4
         with:
           path: ~/.android/debug.keystore
           key: studymatch-beta-debug-keystore-v1
-
       - name: Ensure beta signing key exists
         run: |
           mkdir -p ~/.android
           if [ ! -f ~/.android/debug.keystore ]; then
-            keytool -genkeypair -v \
-              -keystore ~/.android/debug.keystore \
-              -storepass android \
-              -alias androiddebugkey \
-              -keypass android \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=StudyMatch Beta,O=StudyMatch,C=BR"
+            keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=StudyMatch Beta,O=StudyMatch,C=BR"
           fi
-
       - name: Install web dependencies
         run: npm ci
-
       - name: Install Capacitor Android
         run: npm install --no-save @capacitor/core@8.4.2 @capacitor/cli@8.4.2 @capacitor/android@8.4.2
-
       - name: Build web app
         run: npm run build
-
       - name: Create Android project
         run: |
           npx cap add android
           npx cap sync android
-
-      - name: Apply official StudyMatch launcher icon
+      - name: Apply StudyMatch mark as native Android icon
         run: |
-          mkdir -p android/app/src/main/res/drawable-nodpi
-          base64 -d public/studymatch-logo-data.txt > android/app/src/main/res/drawable-nodpi/studymatch_icon.png
+          mkdir -p android/app/src/main/res/drawable
+          cat > android/app/src/main/res/drawable/studymatch_icon.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="512" android:viewportHeight="512">
+            <path android:fillColor="#0B315F" android:pathData="M256,142a114,114 0,1 0,0 228a114,114 0,1 0,0 -228M256,186a70,70 0,1 1,0 140a70,70 0,1 1,0 -140" android:fillType="evenOdd"/>
+            <path android:fillColor="#14BFAE" android:pathData="M256,29a43,43 0,1 0,0 86a43,43 0,1 0,0 -86M177,159c21,-38 51,-58 79,-58s58,20 79,58c7,13 2,29 -11,36l-34,19c-10,6 -23,3 -30,-7l-4,-6 -4,6c-7,10 -20,13 -30,7l-34,-19c-13,-7 -18,-23 -11,-36M256,397a43,43 0,1 0,0 86a43,43 0,1 0,0 -86M177,353c21,38 51,58 79,58s58,-20 79,-58c7,-13 2,-29 -11,-36l-34,-19c-10,-6 -23,-3 -30,7l-4,6 -4,-6c-7,-10 -20,-13 -30,-7l-34,19c-13,7 -18,23 -11,36"/>
+            <path android:fillColor="#0B315F" android:pathData="M29,256a43,43 0,1 0,86 0a43,43 0,1 0,-86 0M159,177c-38,21 -58,51 -58,79s20,58 58,79c13,7 29,2 36,-11l19,-34c6,-10 3,-23 -7,-30l-6,-4 6,-4c10,-7 13,-20 7,-30l-19,-34c-7,-13 -23,-18 -36,-11M397,256a43,43 0,1 0,86 0a43,43 0,1 0,-86 0M353,177c38,21 58,51 58,79s-20,58 -58,79c-13,7 -29,2 -36,-11l-19,-34c-6,-10 -3,-23 7,-30l6,-4 -6,-4c-10,-7 -13,-20 -7,-30l19,-34c7,-13 23,-18 36,-11"/>
+          </vector>
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/src/main/AndroidManifest.xml')
@@ -77,14 +67,12 @@ jobs:
           text=text.replace('android:roundIcon="@mipmap/ic_launcher_round"','android:roundIcon="@drawable/studymatch_icon"')
           p.write_text(text)
           PY
-
       - name: Build installable APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
           cp app/build/outputs/apk/debug/app-debug.apk ../StudyMatch.apk
-
       - name: Publish stable APK download
         env:
           GH_TOKEN: ${{ github.token }}
