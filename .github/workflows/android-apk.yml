@@ -6,6 +6,7 @@ on:
     paths:
       - 'capacitor.config.json'
       - 'public/studymatch-mark.svg'
+      - 'public/studymatch-app-icon.svg'
       - '.github/workflows/android-apk.yml'
   workflow_dispatch:
 
@@ -51,8 +52,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin imagemagick
           mkdir -p android/app/src/main/res/drawable-nodpi
-          rsvg-convert -w 512 public/studymatch-mark.svg -o /tmp/studymatch_icon_raw.png
-          convert /tmp/studymatch_icon_raw.png -gravity center -background none -extent 512x512 android/app/src/main/res/drawable-nodpi/studymatch_icon.png
+          rsvg-convert -w 390 public/studymatch-mark.svg -o /tmp/studymatch_mark.png
+          convert -size 512x512 xc:none \
+            -fill '#082A55' -draw 'roundrectangle 12,12 500,500 92,92' \
+            /tmp/studymatch_mark.png -gravity center -composite \
+            android/app/src/main/res/drawable-nodpi/studymatch_icon.png
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/src/main/AndroidManifest.xml')
