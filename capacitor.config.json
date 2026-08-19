@@ -3,6 +3,11 @@
   "appName": "StudyMatch",
   "webDir": "dist",
   "server": {
-    "androidScheme": "https"
+    "url": "https://studymatch-self.vercel.app",
+    "androidScheme": "https",
+    "cleartext": false,
+    "allowNavigation": [
+      "studymatch-self.vercel.app"
+    ]
   }
 }
