@@ -14,10 +14,10 @@
   "categories": ["education", "social", "productivity"],
   "icons": [
     {
-      "src": "/studymatch-app-icon.svg?v=5",
+      "src": "/studymatch-mark.svg?v=7",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
