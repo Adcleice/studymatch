@@ -67,7 +67,6 @@ create trigger place_review_rating_delete
 after delete on public.place_reviews
 for each row execute function public.sync_place_rating();
 
--- Recalcula registros antigos uma única vez por execução.
 do $$
 declare r record;
 begin
@@ -177,7 +176,6 @@ on public.forum_saved_posts(user_id);
 
 -- ============================================================
 -- 5) VALIDAÇÃO BÁSICA DE AVALIAÇÕES
--- Adiciona somente depois de normalizar eventual dado legado inválido.
 -- ============================================================
 update public.place_reviews set rating=1 where rating<1;
 update public.place_reviews set rating=5 where rating>5;
@@ -204,6 +202,76 @@ begin
     add constraint connection_reviews_rating_range check (rating between 1 and 5);
   end if;
 end $$;
+
+-- ============================================================
+-- 6) AVALIAÇÕES DE CONEXÃO: impede avaliação falsa e protege comentários
+-- ============================================================
+alter table public.connection_reviews enable row level security;
+
+drop policy if exists "connection reviews readable" on public.connection_reviews;
+drop policy if exists "connection reviews read involved" on public.connection_reviews;
+drop policy if exists "connection reviews insert own" on public.connection_reviews;
+drop policy if exists "connection reviews update own" on public.connection_reviews;
+drop policy if exists "connection reviews delete own" on public.connection_reviews;
+
+-- Comentário e identidade do avaliador ficam visíveis só às duas pessoas envolvidas
+-- e à administradora. A reputação pública usa a função abaixo, sem expor comentário.
+create policy "connection reviews read involved" on public.connection_reviews
+for select to authenticated
+using (
+  auth.uid()=reviewer_id
+  or auth.uid()=reviewed_id
+  or coalesce(auth.jwt() ->> 'email','')='adcleice24@gmail.com'
+);
+
+create policy "connection reviews insert own" on public.connection_reviews
+for insert to authenticated
+with check (
+  auth.uid()=reviewer_id
+  and reviewer_id<>reviewed_id
+  and exists (
+    select 1 from public.matches m
+    where m.id=match_id
+      and auth.uid() in (m.user1_id,m.user2_id)
+      and reviewed_id in (m.user1_id,m.user2_id)
+      and reviewed_id<>auth.uid()
+  )
+);
+
+create policy "connection reviews update own" on public.connection_reviews
+for update to authenticated
+using (auth.uid()=reviewer_id)
+with check (
+  auth.uid()=reviewer_id
+  and reviewer_id<>reviewed_id
+  and exists (
+    select 1 from public.matches m
+    where m.id=match_id
+      and auth.uid() in (m.user1_id,m.user2_id)
+      and reviewed_id in (m.user1_id,m.user2_id)
+      and reviewed_id<>auth.uid()
+  )
+);
+
+create policy "connection reviews delete own" on public.connection_reviews
+for delete to authenticated
+using (auth.uid()=reviewer_id);
+
+create or replace function public.get_public_connection_reviews(p_user_id uuid)
+returns table(rating integer,tags text[])
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select r.rating::integer,coalesce(r.tags,'{}'::text[])
+  from public.connection_reviews r
+  where r.reviewed_id=p_user_id
+    and r.rating between 1 and 5;
+$$;
+
+revoke all on function public.get_public_connection_reviews(uuid) from public;
+grant execute on function public.get_public_connection_reviews(uuid) to authenticated;
 
 -- Conferência rápida
 select
