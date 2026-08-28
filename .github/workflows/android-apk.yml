@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir -p ~/.android
           if [ ! -f ~/.android/debug.keystore ]; then
-            keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=StudyMatch Beta,O=StudyMatch,C=BR"
+            keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Matchworking Beta,O=Matchworking,C=BR"
           fi
       - name: Install web dependencies
         run: npm ci
@@ -47,22 +47,22 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
-      - name: Render official StudyMatch asset for Android
+      - name: Render official Matchworking asset for Android
         run: |
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin imagemagick
           mkdir -p android/app/src/main/res/drawable-nodpi
-          rsvg-convert -w 390 public/studymatch-mark.svg -o /tmp/studymatch_mark.png
+          rsvg-convert -w 390 public/studymatch-mark.svg -o /tmp/matchworking_mark.png
           convert -size 512x512 xc:none \
             -fill '#082A55' -draw 'roundrectangle 12,12 500,500 92,92' \
-            /tmp/studymatch_mark.png -gravity center -composite \
-            android/app/src/main/res/drawable-nodpi/studymatch_icon.png
+            /tmp/matchworking_mark.png -gravity center -composite \
+            android/app/src/main/res/drawable-nodpi/matchworking_icon.png
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/src/main/AndroidManifest.xml')
           text=p.read_text()
-          text=text.replace('android:icon="@mipmap/ic_launcher"','android:icon="@drawable/studymatch_icon"')
-          text=text.replace('android:roundIcon="@mipmap/ic_launcher_round"','android:roundIcon="@drawable/studymatch_icon"')
+          text=text.replace('android:icon="@mipmap/ic_launcher"','android:icon="@drawable/matchworking_icon"')
+          text=text.replace('android:roundIcon="@mipmap/ic_launcher_round"','android:roundIcon="@drawable/matchworking_icon"')
           p.write_text(text)
           PY
       - name: Build installable APK
@@ -70,13 +70,13 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-          cp app/build/outputs/apk/debug/app-debug.apk ../StudyMatch.apk
+          cp app/build/outputs/apk/debug/app-debug.apk ../Matchworking.apk
       - name: Publish stable APK download
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view android-beta >/dev/null 2>&1; then
-            gh release upload android-beta StudyMatch.apk --clobber
+            gh release upload android-beta Matchworking.apk --clobber
           else
-            gh release create android-beta StudyMatch.apk --title "StudyMatch para Android" --notes "Versão beta instalável diretamente no Android."
+            gh release create android-beta Matchworking.apk --title "Matchworking para Android" --notes "Versão beta instalável diretamente no Android."
           fi
