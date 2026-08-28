@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "StudyMatch",
-  "short_name": "StudyMatch",
-  "description": "Rede para estudar, trocar conhecimento e criar conexões úteis.",
+  "name": "Matchworking",
+  "short_name": "Matchworking",
+  "description": "Rede para trocar conhecimento, colaborar e criar conexões úteis.",
   "lang": "pt-BR",
   "start_url": "/",
   "scope": "/",
@@ -11,10 +11,10 @@
   "background_color": "#F4F8FC",
   "theme_color": "#082A55",
   "orientation": "portrait-primary",
-  "categories": ["education", "social", "productivity"],
+  "categories": ["education", "social", "productivity", "business"],
   "icons": [
     {
-      "src": "/studymatch-mark.svg?v=7",
+      "src": "/studymatch-mark.svg?v=8",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
