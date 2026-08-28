@@ -6,6 +6,6 @@
   },
   "rewrites": [
     { "source": "/waitlist", "destination": "/waitlist-matchworking.html" },
-    { "source": "/((?!waitlist).*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|studymatch-logo\\.svg|studymatch-mark\\.svg|favicon\\.svg|icons\\.svg|manifest\\.webmanifest|sw\\.js|social/|waitlist).*)", "destination": "/index.html" }
   ]
 }
