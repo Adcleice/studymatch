@@ -1,6 +1,6 @@
 {
   "appId": "com.studymatch.app",
-  "appName": "StudyMatch",
+  "appName": "Matchworking",
   "webDir": "dist",
   "server": {
     "url": "https://studymatch-self.vercel.app",
