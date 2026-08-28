@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StudyMatch — Lista de Espera</title>
+  <meta name="theme-color" content="#082A55" />
+  <title>Matchworking — Lista de Espera</title>
+  <meta name="description" content="Matchworking conecta pessoas por interesses, conhecimento, projetos e oportunidades de colaboração." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
-  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2HV4N9GKYR"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -14,399 +15,138 @@
     gtag('config', 'G-2HV4N9GKYR');
   </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --purple: #6C63FF; --purple-dark: #4B44CC; --purple-light: #EEF0FF;
-      --teal: #00C9A7; --dark: #1A1A2E; --gray: #6B7280;
-    }
-    body { font-family: 'Inter', sans-serif; background: #F7F8FF; color: var(--dark); }
-
-    /* HERO */
-    .hero {
-      background: linear-gradient(135deg, #1A1A2E 0%, #4B44CC 60%, #00C9A7 100%);
-      padding: 80px 24px 100px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(108,99,255,0.3) 0%, transparent 70%);
-      top: -200px; left: 50%; transform: translateX(-50%);
-    }
-    .badge {
-      display: inline-block;
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: white;
-      padding: 6px 18px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin-bottom: 28px;
-      backdrop-filter: blur(10px);
-    }
-    .hero h1 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(36px, 8vw, 64px);
-      color: white;
-      line-height: 1.1;
-      margin-bottom: 20px;
-      position: relative;
-    }
-    .hero h1 span { color: #00C9A7; }
-    .hero p {
-      font-size: clamp(16px, 3vw, 20px);
-      color: rgba(255,255,255,0.8);
-      max-width: 580px;
-      margin: 0 auto 40px;
-      line-height: 1.6;
-      position: relative;
-    }
-    .waitlist-form {
-      display: flex;
-      gap: 12px;
-      max-width: 480px;
-      margin: 0 auto;
-      flex-wrap: wrap;
-      justify-content: center;
-      position: relative;
-    }
-    .waitlist-form input {
-      flex: 1;
-      min-width: 240px;
-      padding: 16px 20px;
-      border-radius: 14px;
-      border: 2px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 15px;
-      font-family: 'Inter', sans-serif;
-      backdrop-filter: blur(10px);
-      outline: none;
-    }
-    .waitlist-form input::placeholder { color: rgba(255,255,255,0.5); }
-    .waitlist-form input:focus { border-color: rgba(255,255,255,0.6); }
-    .btn-join {
-      padding: 16px 32px;
-      border-radius: 14px;
-      background: white;
-      color: var(--purple);
-      font-weight: 700;
-      font-size: 15px;
-      font-family: 'Inter', sans-serif;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-    .hero-note { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 16px; position: relative; }
-
-    /* SUCCESS */
-    .success-msg {
-      display: none;
-      background: rgba(0,201,167,0.2);
-      border: 1px solid rgba(0,201,167,0.5);
-      color: white;
-      padding: 16px 24px;
-      border-radius: 14px;
-      font-size: 15px;
-      margin-top: 16px;
-      max-width: 480px;
-      margin: 16px auto 0;
-    }
-
-    /* STORY */
-    .story {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 80px 24px;
-      text-align: center;
-    }
-    .story-label {
-      color: var(--purple);
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .story h2 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(26px, 5vw, 40px);
-      color: var(--dark);
-      line-height: 1.2;
-      margin-bottom: 32px;
-    }
-    .story-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      text-align: left;
-    }
-    .story-card {
-      background: white;
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 4px 24px rgba(108,99,255,0.08);
-      border-left: 4px solid var(--purple);
-    }
-    .story-card.teal { border-left-color: var(--teal); }
-    .story-icon { font-size: 32px; margin-bottom: 14px; }
-    .story-card h3 { font-family: 'Sora', sans-serif; font-size: 17px; margin-bottom: 10px; }
-    .story-card p { color: var(--gray); font-size: 14px; line-height: 1.7; }
-
-    /* HOW IT WORKS */
-    .how { background: white; padding: 80px 24px; text-align: center; }
-    .how h2 { font-family: 'Sora', sans-serif; font-size: clamp(26px, 5vw, 40px); margin-bottom: 12px; }
-    .how-sub { color: var(--gray); font-size: 16px; margin-bottom: 56px; }
-    .steps { display: flex; justify-content: center; flex-wrap: wrap; gap: 32px; max-width: 900px; margin: 0 auto; }
-    .step { max-width: 200px; text-align: center; }
-    .step-num {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: var(--purple-light);
-      color: var(--purple);
-      font-family: 'Sora', sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
-    }
-    .step h3 { font-family: 'Sora', sans-serif; font-size: 16px; margin-bottom: 8px; }
-    .step p { color: var(--gray); font-size: 14px; line-height: 1.6; }
-
-    /* FEATURES */
-    .features { padding: 80px 24px; max-width: 900px; margin: 0 auto; }
-    .features h2 { font-family: 'Sora', sans-serif; font-size: clamp(26px, 5vw, 40px); text-align: center; margin-bottom: 48px; }
-    .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-    .feat {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 4px 24px rgba(108,99,255,0.07);
-      transition: transform 0.2s;
-    }
-    .feat:hover { transform: translateY(-4px); }
-    .feat-icon { font-size: 36px; margin-bottom: 14px; }
-    .feat h3 { font-family: 'Sora', sans-serif; font-size: 16px; margin-bottom: 8px; }
-    .feat p { color: var(--gray); font-size: 14px; line-height: 1.6; }
-
-    /* QUOTE */
-    .quote-section {
-      background: linear-gradient(135deg, var(--purple) 0%, var(--teal) 100%);
-      padding: 80px 24px;
-      text-align: center;
-    }
-    .quote {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(22px, 4vw, 36px);
-      color: white;
-      max-width: 700px;
-      margin: 0 auto 24px;
-      line-height: 1.4;
-    }
-    .quote-author { color: rgba(255,255,255,0.7); font-size: 15px; }
-
-    /* CTA BOTTOM */
-    .cta-bottom { padding: 80px 24px; text-align: center; }
-    .cta-bottom h2 { font-family: 'Sora', sans-serif; font-size: clamp(26px, 5vw, 40px); margin-bottom: 16px; }
-    .cta-bottom p { color: var(--gray); font-size: 16px; margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto; }
-    .cta-form {
-      display: flex; gap: 12px; max-width: 480px;
-      margin: 0 auto; flex-wrap: wrap; justify-content: center;
-    }
-    .cta-form input {
-      flex: 1; min-width: 240px;
-      padding: 16px 20px; border-radius: 14px;
-      border: 2px solid #E5E7EB; font-size: 15px;
-      font-family: 'Inter', sans-serif; outline: none;
-    }
-    .cta-form input:focus { border-color: var(--purple); }
-    .btn-cta {
-      padding: 16px 32px; border-radius: 14px;
-      background: var(--purple); color: white;
-      font-weight: 700; font-size: 15px;
-      font-family: 'Inter', sans-serif;
-      border: none; cursor: pointer; transition: all 0.2s;
-    }
-    .btn-cta:hover { background: var(--purple-dark); transform: translateY(-2px); }
-
-    /* FOOTER */
-    footer { background: var(--dark); color: rgba(255,255,255,0.5); text-align: center; padding: 32px 24px; font-size: 13px; }
-    footer span { color: white; font-family: 'Sora', sans-serif; font-weight: 700; }
-
-    /* COUNTER */
-    .counter { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 24px; position: relative; }
-    .counter strong { color: white; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--navy:#082A55;--blue:#1456A0;--teal:#10A77B;--teal2:#0D8B83;--light:#F4F8FC;--line:#DCE6F1;--text:#17233A;--gray:#64748B}
+    body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text)}
+    .hero{background:linear-gradient(135deg,#061D3A 0%,#0C4B84 55%,#0D8B83 100%);padding:64px 24px 88px;text-align:center;position:relative;overflow:hidden}
+    .hero:before{content:'';position:absolute;width:680px;height:680px;background:radial-gradient(circle,rgba(16,167,123,.20),transparent 65%);top:-350px;left:50%;transform:translateX(-50%)}
+    .brand{position:relative;display:inline-flex;align-items:center;gap:14px;margin-bottom:28px}
+    .logo-box{width:76px;height:76px;border-radius:22px;background:#082A55;border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;box-shadow:0 12px 28px rgba(0,0,0,.22)}
+    .logo-box img{width:62px;height:62px;object-fit:contain;display:block}
+    .brand-name{font-family:'Sora',sans-serif;color:white;font-size:clamp(25px,5vw,36px);font-weight:800;letter-spacing:-.04em}
+    .brand-name span{color:#25D0B4}
+    .badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);color:white;padding:7px 16px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:22px;position:relative}
+    .hero h1{font-family:'Sora',sans-serif;font-size:clamp(36px,8vw,64px);color:white;line-height:1.08;max-width:850px;margin:0 auto 20px;position:relative}
+    .hero h1 span{color:#2DD4B9}
+    .hero>p{font-size:clamp(16px,3vw,20px);color:rgba(255,255,255,.82);max-width:700px;margin:0 auto 34px;line-height:1.65;position:relative}
+    .waitlist-form,.cta-form{display:flex;gap:10px;max-width:520px;margin:0 auto;flex-wrap:wrap;justify-content:center;position:relative}
+    .waitlist-form input,.cta-form input{flex:1;min-width:240px;padding:15px 18px;border-radius:13px;font:inherit;outline:none}
+    .waitlist-form input{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.10);color:white}.waitlist-form input::placeholder{color:rgba(255,255,255,.55)}
+    .btn-join,.btn-cta{padding:15px 24px;border:none;border-radius:13px;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer}.btn-join{background:white;color:var(--blue)}.btn-cta{background:linear-gradient(135deg,var(--blue),var(--teal));color:white}
+    .hero-note,.counter{color:rgba(255,255,255,.58);font-size:12px;margin-top:14px;position:relative}.counter strong{color:white}
+    .success-msg{display:none;background:#E8F8F2;border:1px solid #BFE7DA;color:#08785A;padding:14px 18px;border-radius:13px;font-size:14px;max-width:520px;margin:14px auto 0}
+    .hero .success-msg{background:rgba(16,167,123,.18);border-color:rgba(91,225,190,.35);color:white}
+    .section{padding:74px 24px}.section-inner{max-width:980px;margin:0 auto}.eyebrow{text-transform:uppercase;letter-spacing:.14em;color:var(--teal);font-size:11px;font-weight:800;margin-bottom:12px}.section h2{font-family:'Sora',sans-serif;font-size:clamp(28px,5vw,42px);line-height:1.18;margin-bottom:16px}.lead{color:var(--gray);font-size:16px;line-height:1.65;max-width:700px;margin:0 auto 38px}
+    .center{text-align:center}.white{background:white}.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .card{background:white;border:1px solid rgba(8,42,85,.08);border-radius:20px;padding:25px;box-shadow:0 8px 28px rgba(8,42,85,.06)}.white .card{background:#F8FBFE}.card h3{font-family:'Sora',sans-serif;font-size:17px;margin:8px 0}.card p{color:var(--gray);font-size:14px;line-height:1.65}.icon{font-size:30px}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px}.step{padding:20px;text-align:center}.step-num{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;margin:0 auto 13px;background:#E8F2FF;color:var(--blue);font-family:'Sora';font-weight:800;font-size:20px}.step h3{font-family:'Sora';font-size:16px;margin-bottom:7px}.step p{font-size:13px;color:var(--gray);line-height:1.55}
+    .preview{background:linear-gradient(180deg,#F4F8FC,#EAF2FA)}.preview-frame{max-width:900px;margin:0 auto;border-radius:24px;overflow:hidden;border:1px solid rgba(8,42,85,.08);box-shadow:0 22px 70px rgba(8,42,85,.16);background:white}.preview-frame img{width:100%;display:block}.preview-note{color:#94A3B8;font-size:12px;margin-top:16px}
+    .quote{background:linear-gradient(135deg,var(--blue),var(--teal2));padding:72px 24px;text-align:center}.quote p:first-child{font-family:'Sora';font-size:clamp(22px,4vw,34px);color:white;max-width:760px;margin:0 auto 18px;line-height:1.4}.quote p:last-child{color:rgba(255,255,255,.7);font-size:14px}
+    .cta{padding:76px 24px;text-align:center}.cta h2{font-family:'Sora';font-size:clamp(28px,5vw,40px);margin-bottom:12px}.cta>p{color:var(--gray);max-width:600px;margin:0 auto 32px;line-height:1.6}.cta-form input{border:1px solid #CBD8E6;background:white;color:var(--text)}
+    footer{background:#061D3A;color:rgba(255,255,255,.55);text-align:center;padding:30px 20px;font-size:12px}footer b{color:white}
+    @media(max-width:560px){.brand{flex-direction:column;gap:8px}.logo-box{width:70px;height:70px}.logo-box img{width:57px;height:57px}.hero{padding-top:42px}.section{padding:58px 18px}}
   </style>
 </head>
 <body>
+  <section class="hero">
+    <div class="brand">
+      <div class="logo-box"><img src="/studymatch-mark.svg?v=8" alt="Ícone Matchworking" /></div>
+      <div class="brand-name">Match<span>working</span></div>
+    </div>
+    <div class="badge">ACESSO ANTECIPADO · LISTA DE ESPERA</div>
+    <h1>Conexões que geram <span>conhecimento, projetos e oportunidades.</span></h1>
+    <p>O Matchworking aproxima estudantes, profissionais, pesquisadores e pessoas com interesses em comum para trocar conhecimento, colaborar e construir conexões úteis — sem foco romântico.</p>
+    <div class="waitlist-form">
+      <input type="email" id="email1" placeholder="Seu melhor e-mail..." />
+      <button class="btn-join" onclick="joinWaitlist('email1','success1')">Quero acesso antecipado</button>
+    </div>
+    <div class="success-msg" id="success1">Você entrou na lista. Avisaremos quando houver uma nova etapa de acesso.</div>
+    <p class="hero-note">Sem spam · Você pode sair da lista quando quiser</p>
+    <p class="counter">Faça parte dos primeiros usuários do <strong>Matchworking</strong></p>
+  </section>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="badge">🚀 Em breve — Seja o primeiro a testar</div>
-  <h1>Conecte conhecimento.<br/><span>Troque favores.</span><br/>Cresça junto.</h1>
-  <p>O StudyMatch conecta estudantes e profissionais que querem aprender, ensinar e trocar conhecimento — de graça, sem burocracia, sem interesse financeiro.</p>
-  <div class="waitlist-form">
-    <input type="email" id="email1" placeholder="Seu melhor e-mail..." />
-    <button class="btn-join" onclick="joinWaitlist('email1', 'success1')">Quero ser testador ✨</button>
-  </div>
-  <div class="success-msg" id="success1">🎉 Você entrou na lista! Avisaremos assim que o app estiver pronto.</div>
-  <p class="hero-note">Gratuito para sempre · Sem spam · Cancele quando quiser</p>
-  <p class="counter">Junte-se a <strong id="counter">dezenas de</strong> pessoas na lista de espera</p>
-</section>
+  <section class="section">
+    <div class="section-inner center">
+      <div class="eyebrow">A ideia</div>
+      <h2>Uma rede construída em torno do que as pessoas podem trocar e construir juntas</h2>
+      <p class="lead">O projeto começou com a necessidade de encontrar ajuda para estudar, mas evoluiu para algo maior: uma comunidade onde conhecimento, experiência, interesses e oportunidades aproximam pessoas.</p>
+      <div class="grid2">
+        <div class="card"><div class="icon">🎓</div><h3>Conhecimento</h3><p>Encontre alguém que saiba o que você quer aprender — e que talvez também precise de algo que você possa oferecer.</p></div>
+        <div class="card"><div class="icon">🤝</div><h3>Networking útil</h3><p>Crie conexões baseadas em áreas, instituições, interesses, projetos e objetivos reais, não em aparência ou relacionamento romântico.</p></div>
+      </div>
+    </div>
+  </section>
 
-<!-- STORY -->
-<section class="story">
-  <p class="story-label">Como tudo começou</p>
-  <h2>Uma ideia nascida da necessidade real de quem estuda</h2>
-  <div class="story-cards">
-    <div class="story-card">
-      <div class="story-icon">📚</div>
-      <h3>No colégio, travado numa matéria</h3>
-      <p>"Eu precisava de ajuda com um assunto difícil. Não queria pagar um reforço, nem passar por burocracia. Queria só encontrar alguém ali, na hora do intervalo, que me explicasse aquilo. Por que não existia um app pra isso?"</p>
+  <section class="section white">
+    <div class="section-inner center">
+      <div class="eyebrow">Como funciona</div>
+      <h2>Do perfil à conexão em poucos passos</h2>
+      <p class="lead">O Matchworking organiza descoberta, conversa e comunidade em um único lugar.</p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><h3>Monte seu perfil</h3><p>Mostre sua área, instituição, interesses, no que pode ajudar e o que procura.</p></div>
+        <div class="step"><div class="step-num">2</div><h3>Descubra pessoas</h3><p>Use mapa, interesses e compatibilidade para encontrar conexões relevantes.</p></div>
+        <div class="step"><div class="step-num">3</div><h3>Converse</h3><p>Troque mensagens, áudio e imagens diretamente pelo chat.</p></div>
+        <div class="step"><div class="step-num">4</div><h3>Participe da rede</h3><p>Publique no fórum, entre em salas e construa reputação na comunidade.</p></div>
+      </div>
     </div>
-    <div class="story-card teal">
-      <div class="story-icon">🤝</div>
-      <h3>Na faculdade, pensando em conexões</h3>
-      <p>"Imaginei como seria ter um amigo de cada curso. Um grupo onde o arquiteto ajuda o engenheiro, o advogado ajuda o contador, e todo mundo se ajuda sem cobrar nada. Networking real, baseado em amizade e reciprocidade."</p>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- HOW IT WORKS -->
-<section class="how">
-  <h2>Como o StudyMatch funciona</h2>
-  <p class="how-sub">Simples como encontrar um amigo, poderoso como uma rede de mentores</p>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <h3>Crie seu perfil</h3>
-      <p>Diz no que você é bom e o que quer aprender. Pode ser Física, Direito, Design ou Elétrica.</p>
+  <section class="section">
+    <div class="section-inner center">
+      <div class="eyebrow">Recursos</div>
+      <h2>Mais do que um sistema de “match”</h2>
+      <div class="grid3">
+        <div class="card"><div class="icon">🗺️</div><h3>Mapa de pessoas</h3><p>Visualize perfis por região e instituição, com agrupamento para evitar poluição quando houver muitos usuários no mesmo local.</p></div>
+        <div class="card"><div class="icon">💬</div><h3>Chat</h3><p>Converse com suas conexões usando texto, áudio e imagens.</p></div>
+        <div class="card"><div class="icon">🧠</div><h3>Fórum</h3><p>Publique dúvidas, ideias, recursos, projetos e discussões por temas.</p></div>
+        <div class="card"><div class="icon">📍</div><h3>Lugares</h3><p>Descubra bibliotecas e ambientes de estudo avaliados pela comunidade.</p></div>
+        <div class="card"><div class="icon">🎥</div><h3>Salas</h3><p>Crie espaços de estudo e colaboração para encontros online.</p></div>
+        <div class="card"><div class="icon">⭐</div><h3>Reputação</h3><p>Avaliações ajudam a entender como cada pessoa participa da comunidade antes de criar novas conexões.</p></div>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <h3>Dê Match</h3>
-      <p>O app encontra pessoas compatíveis perto de você — na mesma escola, faculdade ou cidade.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <h3>Conecte-se</h3>
-      <p>Converse pelo chat, combine um encontro e troque conhecimento. Sem cobranças, sem complicação.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <h3>Troque favores</h3>
-      <p>Você ensinou Física hoje. Amanhã, peça ajuda com Redação. A rede cresce com reciprocidade.</p>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- FEATURES -->
-<section class="features">
-  <h2>Tudo que você vai encontrar no app</h2>
-  <div class="feat-grid">
-    <div class="feat">
-      <div class="feat-icon">🎯</div>
-      <h3>Match por Interesses</h3>
-      <p>Encontre pessoas que podem te ajudar com exatamente o que você precisa aprender agora.</p>
+  <section class="section preview">
+    <div class="section-inner center">
+      <div class="eyebrow">Prévia do aplicativo</div>
+      <h2>Veja o conceito em funcionamento</h2>
+      <p class="lead">A interface está sendo refinada continuamente a partir dos testes do produto.</p>
+      <div class="preview-frame">
+        <img src="https://tvaswbatjcucmnnkzjst.supabase.co/storage/v1/object/public/IMAGEM%20PREVIEW/ChatGPT%20Image%2027%20de%20jun.%20de%202026,%2017_11_46.png" alt="Prévia visual do aplicativo Matchworking" />
+      </div>
+      <p class="preview-note">*A imagem é uma prévia conceitual; telas e elementos podem mudar conforme o desenvolvimento.</p>
     </div>
-    <div class="feat">
-      <div class="feat-icon">💬</div>
-      <h3>Chat em Tempo Real</h3>
-      <p>Converse, combine horários e tire dúvidas diretamente com quem deu match com você.</p>
+  </section>
+
+  <section class="quote">
+    <p>“Imagine conseguir encontrar a pessoa certa para aprender, colaborar ou tirar uma ideia do papel — porque vocês têm algo relevante para trocar.”</p>
+    <p>— A proposta por trás do Matchworking</p>
+  </section>
+
+  <section class="cta">
+    <h2>Entre antes do lançamento amplo</h2>
+    <p>Os primeiros usuários ajudam a testar o produto, construir a comunidade inicial e influenciar diretamente as próximas melhorias.</p>
+    <div class="cta-form">
+      <input type="email" id="email2" placeholder="Seu melhor e-mail..." />
+      <button class="btn-cta" onclick="joinWaitlist('email2','success2')">Entrar na lista</button>
     </div>
-    <div class="feat">
-      <div class="feat-icon">🗺️</div>
-      <h3>Mapa de Conexões</h3>
-      <p>Veja pessoas da sua instituição ou região no mapa e encontre alguém para estudar perto de você.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">📍</div>
-      <h3>Lugares para Estudar</h3>
-      <p>Ranking dos melhores lugares para estudar na sua cidade, avaliados pela própria comunidade.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">🎓</div>
-      <h3>Para Estudantes</h3>
-      <p>Monitoria, reforço escolar e grupos de estudo — tudo sem pagar nada e sem sair da sua escola.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">💼</div>
-      <h3>Para Profissionais</h3>
-      <p>Troque serviços e conhecimentos com profissionais de outras áreas. Networking real e genuíno.</p>
-    </div>
-  </div>
-</section>
+    <div class="success-msg" id="success2">Cadastro realizado. Avisaremos quando houver uma nova etapa de acesso.</div>
+  </section>
 
-<!-- APP PREVIEW -->
-<section style="background: linear-gradient(180deg, #F7F8FF 0%, #EEF0FF 100%); padding: 80px 24px; text-align: center;">
-  <p style="color: #6C63FF; font-weight: 700; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;">Prévia do App</p>
-  <h2 style="font-family: 'Sora', sans-serif; font-size: clamp(26px, 5vw, 40px); color: #1A1A2E; margin-bottom: 16px;">Veja como vai funcionar</h2>
-  <p style="color: #6B7280; font-size: 16px; max-width: 500px; margin: 0 auto 48px;">Uma interface simples, bonita e pensada para conectar pessoas de verdade.</p>
-  <div style="max-width: 900px; margin: 0 auto; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 80px rgba(108,99,255,0.25);">
-    <img src="https://tvaswbatjcucmnnkzjst.supabase.co/storage/v1/object/public/IMAGEM%20PREVIEW/ChatGPT%20Image%2027%20de%20jun.%20de%202026,%2017_11_46.png"
-      alt="Preview do StudyMatch"
-      style="width: 100%; display: block;" />
-  </div>
-  <p style="color: #9CA3AF; font-size: 13px; margin-top: 24px;">*Protótipo visual — o app final pode variar</p>
-</section>
+  <footer><b>Matchworking</b> © 2026 · Conectando pessoas por conhecimento, interesses e oportunidades.</footer>
 
-<!-- QUOTE -->
-<section class="quote-section">
-  <p class="quote">"Imagine ter um amigo arquiteto, um amigo advogado, um amigo médico — e poder pedir ajuda sem constrangimento, porque você também tem algo a oferecer."</p>
-  <p class="quote-author">— A ideia por trás do StudyMatch</p>
-</section>
-
-<!-- CTA BOTTOM -->
-<section class="cta-bottom">
-  <h2>Faça parte desde o início 🚀</h2>
-  <p>Entre na lista de espera e seja um dos primeiros testadores do StudyMatch. Sua opinião vai moldar o futuro do app.</p>
-  <div class="cta-form">
-    <input type="email" id="email2" placeholder="Seu melhor e-mail..." />
-    <button class="btn-cta" onclick="joinWaitlist('email2', 'success2')">Entrar na lista</button>
-  </div>
-  <div class="success-msg" id="success2" style="max-width:480px; margin: 16px auto 0;">🎉 Você entrou na lista! Avisaremos assim que o app estiver pronto.</div>
-  <p style="color: #9CA3AF; font-size: 13px; margin-top: 16px;">Gratuito · Sem spam · Você pode sair quando quiser</p>
-</section>
-
-<footer>
-  Feito com 💜 no Brasil · <span>StudyMatch</span> © 2026 · Conectando conhecimento, trocando favores.
-</footer>
-
-<script>
-  const SUPABASE_URL = 'https://tvaswbatjcucmnnkzjst.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2YXN3YmF0amN1Y21ubmt6anN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTU4MzQsImV4cCI6MjA5Nzk3MTgzNH0.S9l_mAeHHLSbMC-sHenyMK7udxE9sdeV2USImHaJQWE';
-
-  async function joinWaitlist(inputId, successId) {
-    const email = document.getElementById(inputId).value.trim();
-    if (!email || !email.includes('@')) {
-      alert('Por favor, insira um e-mail válido!');
-      return;
+  <script>
+    const SUPABASE_URL='https://tvaswbatjcucmnnkzjst.supabase.co';
+    const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2YXN3YmF0amN1Y21ubmt6anN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTU4MzQsImV4cCI6MjA5Nzk3MTgzNH0.S9l_mAeHHLSbMC-sHenyMK7udxE9sdeV2USImHaJQWE';
+    async function joinWaitlist(inputId,successId){
+      const input=document.getElementById(inputId),email=input.value.trim();
+      if(!email||!email.includes('@')){alert('Por favor, insira um e-mail válido.');return}
+      try{
+        const r=await fetch(`${SUPABASE_URL}/rest/v1/waitlist`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'return=minimal'},body:JSON.stringify({email,created_at:new Date().toISOString()})});
+        if(!r.ok&&r.status!==409)throw new Error('Falha no cadastro');
+        input.style.display='none';input.closest('.waitlist-form, .cta-form').querySelector('button').style.display='none';document.getElementById(successId).style.display='block';
+      }catch(e){alert('Erro ao cadastrar. Tente novamente.')}
     }
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ email, created_at: new Date().toISOString() })
-      });
-      document.getElementById(inputId).style.display = 'none';
-      document.getElementById(inputId).closest('.waitlist-form, .cta-form').querySelector('button').style.display = 'none';
-      document.getElementById(successId).style.display = 'block';
-    } catch(e) {
-      alert('Erro ao cadastrar. Tente novamente!');
-    }
-  }
-</script>
+  </script>
 </body>
 </html>
