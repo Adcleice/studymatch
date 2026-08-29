@@ -1,20 +1,21 @@
-/* Forum launch experience: invite contribution without adding visual noise. */
+/* Forum launch experience: inviting, but deliberately low-noise. */
 body[data-route="forum"] header>p:first-child{opacity:.62!important}
 body[data-route="forum"] header h2{font-size:21px!important}
 body[data-route="forum"] header>p:last-of-type{font-size:0!important;opacity:.86!important;margin-top:3px!important}
 body[data-route="forum"] header>p:last-of-type::after{content:'Ideias, conhecimento e perguntas que merecem circular.';font-size:11px!important;line-height:1.45}
-/* Turn the old + into the primary writing invitation. Search stays secondary and compact. */
-body[data-route="forum"] header>div:last-child{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important}
-body[data-route="forum"] header>div:last-child>div:first-child{grid-column:1/-1!important;order:2!important;min-height:38px!important;opacity:.94}
-body[data-route="forum"] header button[aria-label="Criar publicação"]{grid-column:1!important;order:1!important;width:100%!important;height:48px!important;border-radius:12px!important;background:#fff!important;color:#193945!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;padding:0 14px!important;gap:10px!important;text-align:left!important;box-shadow:0 1px 0 rgba(255,255,255,.08)!important}
-body[data-route="forum"] header button[aria-label="Criar publicação"]::after{content:'Compartilhe uma ideia, descoberta ou pergunta';font-size:12px;font-weight:650;color:#405A64;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body[data-route="forum"] header button[aria-label="Criar publicação"] svg{width:17px;height:17px;color:#169B82;flex:0 0 auto}
-body[data-route="forum"] header button[aria-label="Abrir moderação"]{grid-column:2!important;grid-row:1!important;order:1!important;width:48px!important;height:48px!important;border-radius:12px!important}
+/* Search stays in the header; publishing is a compact, unmistakable CTA. */
+body[data-route="forum"] header>div:last-child{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important}
+body[data-route="forum"] header>div:last-child>div:first-child{grid-column:1/-1!important;grid-row:2!important;min-height:38px!important;opacity:.94}
+body[data-route="forum"] header button[aria-label="Criar publicação"]{grid-column:1!important;grid-row:1!important;width:max-content!important;min-width:154px!important;height:40px!important;border-radius:9px!important;background:#169B82!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0 15px!important;gap:7px!important;box-shadow:0 5px 14px rgba(0,0,0,.14)!important;font-weight:800!important}
+body[data-route="forum"] header button[aria-label="Criar publicação"]::after{content:'Nova publicação';font-size:12px;font-weight:800;color:#fff;white-space:nowrap}
+body[data-route="forum"] header button[aria-label="Criar publicação"] svg{width:17px;height:17px;color:#fff;flex:0 0 auto}
+body[data-route="forum"] header button[aria-label="Criar publicação"]:hover{background:#128873!important;box-shadow:0 7px 17px rgba(0,0,0,.18)!important}
+body[data-route="forum"] header button[aria-label="Abrir moderação"]{grid-column:2!important;grid-row:1!important;width:40px!important;height:40px!important;border-radius:9px!important}
 /* Navigation is intentionally quieter: one horizontal line instead of stacked visual blocks. */
 body[data-route="forum"] #root>div>div:nth-child(2){position:static!important;background:transparent!important;backdrop-filter:none!important;border:0!important;box-shadow:none!important;padding:9px 2px 5px!important}
 body[data-route="forum"] #root>div>div:nth-child(2) button{background:transparent!important;color:#6B7D84!important;padding:7px 9px!important}
 body[data-route="forum"] #root>div>div:nth-child(2) button:first-child{background:#EAF5F2!important;color:#0D7563!important}
-/* Content-type filters remain available but read as quiet text controls, not another row of pills. */
+/* Content-type filters remain available but read as quiet text controls. */
 body[data-route="forum"] #root>div>div:nth-child(3){padding:1px 2px 7px!important;gap:3px!important;scrollbar-width:none}
 body[data-route="forum"] #root>div>div:nth-child(3)::-webkit-scrollbar{display:none}
 body[data-route="forum"] #root>div>div:nth-child(3) button{border:0!important;background:transparent!important;padding:5px 7px!important;color:#718087!important;font-size:9.5px!important}
@@ -22,4 +23,4 @@ body[data-route="forum"] #root>div>div:nth-child(3) button:first-child{color:#0D
 /* Personal topics are useful but should not compete with the feed. */
 body[data-route="forum"] #root>div>div:nth-child(4){opacity:.76!important;padding-top:2px!important;padding-bottom:7px!important}
 body[data-route="forum"] #root>div>div:nth-child(4) button{background:transparent!important;padding:3px 5px!important}
-@media(max-width:600px){body[data-route="forum"] header{padding:18px 12px 12px!important}body[data-route="forum"] header button[aria-label="Criar publicação"]{height:46px!important}body[data-route="forum"] header button[aria-label="Criar publicação"]::after{font-size:11px}body[data-route="forum"] header button[aria-label="Abrir moderação"]{width:46px!important;height:46px!important}body[data-route="forum"] #root>div>div:nth-child(3),body[data-route="forum"] #root>div>div:nth-child(4){overflow-x:auto!important;white-space:nowrap!important}}
+@media(max-width:600px){body[data-route="forum"] header{padding:18px 12px 12px!important}body[data-route="forum"] header button[aria-label="Criar publicação"]{height:40px!important;min-width:146px!important;padding:0 13px!important}body[data-route="forum"] header button[aria-label="Criar publicação"]::after{font-size:11.5px}body[data-route="forum"] header button[aria-label="Abrir moderação"]{width:40px!important;height:40px!important}body[data-route="forum"] #root>div>div:nth-child(3),body[data-route="forum"] #root>div>div:nth-child(4){overflow-x:auto!important;white-space:nowrap!important}}
