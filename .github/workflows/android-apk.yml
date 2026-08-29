@@ -25,6 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.android/debug.keystore
+          # Keep this legacy cache key unchanged: changing it can change the APK signing certificate.
           key: studymatch-beta-debug-keystore-v1
       - name: Ensure beta signing key exists
         run: |
@@ -69,8 +70,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin imagemagick
           mkdir -p android/app/src/main/res/drawable-nodpi
-          # favicon.svg is a complete, validated vector. The former mark file is an
-          # embedded-image SVG and can be truncated by text-based repository writes.
           rsvg-convert -w 390 -h 390 public/favicon.svg -o /tmp/matchworking_mark.png
           convert -size 512x512 xc:none \
             -fill '#082A55' -draw 'roundrectangle 12,12 500,500 92,92' \
@@ -97,6 +96,8 @@ jobs:
         run: |
           NOTES="Build: $GITHUB_RUN_NUMBER\n\nAtualização instalável sobre a versão anterior, sem precisar desinstalar o app."
           if gh release view android-beta >/dev/null 2>&1; then
+            # Remove the obsolete pre-rebrand asset if it still exists.
+            gh release delete-asset android-beta StudyMatch.apk -y >/dev/null 2>&1 || true
             gh release upload android-beta Matchworking.apk --clobber
             gh release edit android-beta --title "Matchworking para Android — build $GITHUB_RUN_NUMBER" --notes "$NOTES"
           else
