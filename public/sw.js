@@ -1,4 +1,4 @@
-const CACHE='matchworking-v10';
+const CACHE='matchworking-v11';
 const SHELL=['/','/manifest.webmanifest?v=8','/favicon.svg','/studymatch-mark.svg?v=8'];
 
 self.addEventListener('install',event=>{
