@@ -1,5 +1,12 @@
-button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(20,86,160,.28);outline-offset:2px}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(22,155,130,.28);outline-offset:2px}
 button[aria-label]{min-width:32px;min-height:32px}
 img{max-width:100%}
-@media(pointer:coarse){button{min-height:36px}}
-@media(max-width:600px){body{overscroll-behavior-y:none}input,textarea,select{min-height:44px}}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
+body{min-width:320px;overflow-wrap:anywhere}
+button,input,textarea,select{font:inherit}
+button{touch-action:manipulation}
+textarea{resize:vertical}
+@media(pointer:coarse){button{min-height:40px}}
+@media(max-width:600px){body{overscroll-behavior-y:none}input,textarea,select{min-height:44px;font-size:16px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+@media(prefers-contrast:more){button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline-width:4px}.btn-primary{border:2px solid currentColor}}
