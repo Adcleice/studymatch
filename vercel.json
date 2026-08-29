@@ -5,7 +5,7 @@
     "deploymentEnabled": true
   },
   "rewrites": [
-    { "source": "/waitlist", "destination": "/waitlist-cms.html" },
-    { "source": "/((?!assets/|studymatch-logo\\.svg|studymatch-mark\\.svg|favicon\\.svg|icons\\.svg|manifest\\.webmanifest|sw\\.js|social/|waitlist|waitlist-cms\\.html).*)", "destination": "/index.html" }
+    { "source": "/waitlist", "destination": "/waitlist-matchworking.html" },
+    { "source": "/((?!assets/|studymatch-logo\\.svg|studymatch-mark\\.svg|favicon\\.svg|icons\\.svg|manifest\\.webmanifest|sw\\.js|social/|waitlist|waitlist-matchworking\\.html).*)", "destination": "/index.html" }
   ]
 }
