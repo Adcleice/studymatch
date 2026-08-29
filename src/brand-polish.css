@@ -1,7 +1,4 @@
-/* Two-tone wordmark on the map header without changing the logo artwork. */
-body[data-route="map"] #root>div>header>div:first-child>span{
-  color:transparent!important;
-  background:linear-gradient(90deg,#0B2532 0 36%,var(--brand-accent,#169B82) 36% 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
-}
+/* Explicit two-tone Matchworking wordmark in the map header. */
+body[data-route="map"] #root>div>header>div:first-child>span{font-size:0!important;color:transparent!important;background:none!important;-webkit-text-fill-color:initial!important}
+body[data-route="map"] #root>div>header>div:first-child>span::before{content:'Match';font-size:20px;color:#0B2532;font-weight:800}
+body[data-route="map"] #root>div>header>div:first-child>span::after{content:'working';font-size:20px;color:var(--brand-accent,#169B82);font-weight:800}
