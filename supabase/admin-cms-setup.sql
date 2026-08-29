@@ -1,14 +1,18 @@
 -- Matchworking visual admin / mini-CMS
--- Execute UMA VEZ no SQL Editor do Supabase.
+-- Recria a estrutura correta e define a conta administradora.
 
-create table if not exists public.app_admins (
+-- Remove a estrutura antiga/incompatível criada em tentativas anteriores.
+drop table if exists public.admin_users cascade;
+drop table if exists public.app_settings cascade;
+drop table if exists public.app_admins cascade;
+
+create table public.app_admins (
   user_id uuid primary key references auth.users(id) on delete cascade,
   created_at timestamptz not null default now()
 );
 
 alter table public.app_admins enable row level security;
 
-drop policy if exists "admin reads own membership" on public.app_admins;
 create policy "admin reads own membership" on public.app_admins
 for select to authenticated
 using (user_id = auth.uid());
@@ -22,15 +26,13 @@ as $$
 begin
   if auth.uid() is null then return false; end if;
   if exists(select 1 from public.app_admins where user_id = auth.uid()) then return true; end if;
-  if exists(select 1 from public.app_admins) then return false; end if;
-  insert into public.app_admins(user_id) values(auth.uid()) on conflict do nothing;
-  return true;
+  return false;
 end;
 $$;
 revoke all on function public.claim_first_admin() from public;
 grant execute on function public.claim_first_admin() to authenticated;
 
-create table if not exists public.app_settings (
+create table public.app_settings (
   key text primary key,
   value jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now(),
@@ -39,17 +41,14 @@ create table if not exists public.app_settings (
 
 alter table public.app_settings enable row level security;
 
-drop policy if exists "public reads app settings" on public.app_settings;
 create policy "public reads app settings" on public.app_settings
 for select to anon, authenticated
 using (true);
 
-drop policy if exists "admins insert app settings" on public.app_settings;
 create policy "admins insert app settings" on public.app_settings
 for insert to authenticated
 with check (exists(select 1 from public.app_admins a where a.user_id = auth.uid()));
 
-drop policy if exists "admins update app settings" on public.app_settings;
 create policy "admins update app settings" on public.app_settings
 for update to authenticated
 using (exists(select 1 from public.app_admins a where a.user_id = auth.uid()))
@@ -63,7 +62,12 @@ values ('site', jsonb_build_object(
   'logo_url','',
   'hero_title','Encontre as pessoas certas para ir mais longe.',
   'hero_text','O Matchworking conecta pessoas pelo que sabem, pelo que procuram e pelo que podem construir juntas — para trocar conhecimento, colaborar e criar oportunidades.'
-)) on conflict (key) do nothing;
+));
+
+-- Define diretamente a conta administradora.
+insert into public.app_admins(user_id)
+select id from auth.users where lower(email)=lower('adcleice24@gmail.com')
+on conflict do nothing;
 
 insert into storage.buckets(id,name,public)
 values ('brand-assets','brand-assets',true)
