@@ -1,0 +1,3 @@
+/* Places serves the whole professional/knowledge network, not only students. */
+body[data-route="places"] header>div:first-child>div:first-child>p:last-child{font-size:0!important}
+body[data-route="places"] header>div:first-child>div:first-child>p:last-child::after{content:'Descubra espaços para trabalhar, estudar, criar e se conectar.';font-size:12px;line-height:1.45}
