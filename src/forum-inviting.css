@@ -1,10 +1,10 @@
 /* Forum launch experience: inviting, but deliberately low-noise. */
 body[data-route="forum"] header>p:first-child{font-size:0!important;opacity:.72!important}
 body[data-route="forum"] header>p:first-child::after{content:'FÓRUM MATCHWORKING';font-size:10px!important;font-weight:800;letter-spacing:1.2px}
-body[data-route="forum"] header h2{font-size:21px!important}
-body[data-route="forum"] header>p:last-of-type{font-size:0!important;opacity:.9!important;margin-top:3px!important}
+body[data-route="forum"] header h2{display:none!important}
+body[data-route="forum"] header>p:last-of-type{font-size:0!important;opacity:.9!important;margin-top:5px!important}
 body[data-route="forum"] header>p:last-of-type::after{content:'Compartilhe o que você sabe, pensa ou está descobrindo. Uma ideia pode iniciar uma grande conversa.';font-size:11px!important;line-height:1.45}
-body[data-route="forum"] header>div:last-child{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important}
+body[data-route="forum"] header>div:last-child{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important;margin-top:12px!important}
 body[data-route="forum"] header>div:last-child>div:first-child{grid-column:1/-1!important;grid-row:2!important;min-height:38px!important;opacity:.94}
 body[data-route="forum"] header button[aria-label="Criar publicação"]{grid-column:1!important;grid-row:1!important;width:max-content!important;min-width:154px!important;height:40px!important;border-radius:9px!important;background:#169B82!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0 15px!important;gap:7px!important;box-shadow:0 5px 14px rgba(0,0,0,.14)!important;font-weight:800!important}
 body[data-route="forum"] header button[aria-label="Criar publicação"]::after{content:'Nova publicação';font-size:12px;font-weight:800;color:#fff;white-space:nowrap}
