@@ -1,21 +1,15 @@
 -- Matchworking visual admin / mini-CMS
--- Recria a estrutura correta e define a conta administradora.
+-- Setup idempotente: pode ser executado novamente sem apagar configurações existentes.
 
--- Remove a estrutura antiga/incompatível criada em tentativas anteriores.
-drop table if exists public.admin_users cascade;
-drop table if exists public.app_settings cascade;
-drop table if exists public.app_admins cascade;
-
-create table public.app_admins (
+create table if not exists public.app_admins (
   user_id uuid primary key references auth.users(id) on delete cascade,
   created_at timestamptz not null default now()
 );
 
 alter table public.app_admins enable row level security;
-
+drop policy if exists "admin reads own membership" on public.app_admins;
 create policy "admin reads own membership" on public.app_admins
-for select to authenticated
-using (user_id = auth.uid());
+for select to authenticated using (user_id = auth.uid());
 
 create or replace function public.claim_first_admin()
 returns boolean
@@ -25,14 +19,26 @@ set search_path = public
 as $$
 begin
   if auth.uid() is null then return false; end if;
-  if exists(select 1 from public.app_admins where user_id = auth.uid()) then return true; end if;
-  return false;
+  return exists(select 1 from public.app_admins where user_id = auth.uid());
 end;
 $$;
 revoke all on function public.claim_first_admin() from public;
 grant execute on function public.claim_first_admin() to authenticated;
 
-create table public.app_settings (
+create or replace function public.is_app_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select auth.uid() is not null
+    and exists(select 1 from public.app_admins a where a.user_id = auth.uid());
+$$;
+revoke all on function public.is_app_admin() from public;
+grant execute on function public.is_app_admin() to authenticated;
+
+create table if not exists public.app_settings (
   key text primary key,
   value jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now(),
@@ -40,19 +46,17 @@ create table public.app_settings (
 );
 
 alter table public.app_settings enable row level security;
-
+drop policy if exists "public reads app settings" on public.app_settings;
 create policy "public reads app settings" on public.app_settings
-for select to anon, authenticated
-using (true);
+for select to anon, authenticated using (true);
 
+drop policy if exists "admins insert app settings" on public.app_settings;
 create policy "admins insert app settings" on public.app_settings
-for insert to authenticated
-with check (exists(select 1 from public.app_admins a where a.user_id = auth.uid()));
+for insert to authenticated with check (public.is_app_admin());
 
+drop policy if exists "admins update app settings" on public.app_settings;
 create policy "admins update app settings" on public.app_settings
-for update to authenticated
-using (exists(select 1 from public.app_admins a where a.user_id = auth.uid()))
-with check (exists(select 1 from public.app_admins a where a.user_id = auth.uid()));
+for update to authenticated using (public.is_app_admin()) with check (public.is_app_admin());
 
 insert into public.app_settings(key,value)
 values ('site', jsonb_build_object(
@@ -62,9 +66,9 @@ values ('site', jsonb_build_object(
   'logo_url','',
   'hero_title','Encontre as pessoas certas para ir mais longe.',
   'hero_text','O Matchworking conecta pessoas pelo que sabem, pelo que procuram e pelo que podem construir juntas — para trocar conhecimento, colaborar e criar oportunidades.'
-));
+)) on conflict (key) do nothing;
 
--- Define diretamente a conta administradora.
+-- Mantém a conta inicial como administradora sem remover outros administradores.
 insert into public.app_admins(user_id)
 select id from auth.users where lower(email)=lower('adcleice24@gmail.com')
 on conflict do nothing;
@@ -75,33 +79,18 @@ on conflict (id) do update set public = true;
 
 drop policy if exists "public reads brand assets" on storage.objects;
 create policy "public reads brand assets" on storage.objects
-for select to public
-using (bucket_id = 'brand-assets');
+for select to public using (bucket_id = 'brand-assets');
 
 drop policy if exists "admins upload brand assets" on storage.objects;
 create policy "admins upload brand assets" on storage.objects
-for insert to authenticated
-with check (
-  bucket_id = 'brand-assets' and
-  exists(select 1 from public.app_admins a where a.user_id = auth.uid())
-);
+for insert to authenticated with check (bucket_id = 'brand-assets' and public.is_app_admin());
 
 drop policy if exists "admins update brand assets" on storage.objects;
 create policy "admins update brand assets" on storage.objects
 for update to authenticated
-using (
-  bucket_id = 'brand-assets' and
-  exists(select 1 from public.app_admins a where a.user_id = auth.uid())
-)
-with check (
-  bucket_id = 'brand-assets' and
-  exists(select 1 from public.app_admins a where a.user_id = auth.uid())
-);
+using (bucket_id = 'brand-assets' and public.is_app_admin())
+with check (bucket_id = 'brand-assets' and public.is_app_admin());
 
 drop policy if exists "admins delete brand assets" on storage.objects;
 create policy "admins delete brand assets" on storage.objects
-for delete to authenticated
-using (
-  bucket_id = 'brand-assets' and
-  exists(select 1 from public.app_admins a where a.user_id = auth.uid())
-);
+for delete to authenticated using (bucket_id = 'brand-assets' and public.is_app_admin());
