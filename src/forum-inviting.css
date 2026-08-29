@@ -11,8 +11,10 @@ body[data-route="forum"] header button[aria-label="Criar publicação"]::after{c
 body[data-route="forum"] header button[aria-label="Criar publicação"] svg{width:17px;height:17px;color:#fff;flex:0 0 auto}
 body[data-route="forum"] header button[aria-label="Criar publicação"]:hover{background:#128873!important;box-shadow:0 7px 17px rgba(0,0,0,.18)!important}
 body[data-route="forum"] header button[aria-label="Abrir moderação"]{grid-column:2!important;grid-row:1!important;width:40px!important;height:40px!important;border-radius:9px!important}
-body[data-route="forum"] #root>div>div:nth-child(2){position:static!important;background:transparent!important;backdrop-filter:none!important;border:0!important;box-shadow:none!important;padding:9px 2px 7px!important}
-body[data-route="forum"] #root>div>div:nth-child(2) button{background:transparent!important;color:#6B7D84!important;padding:7px 9px!important}
+/* Feed modes: never split words. On narrow screens the row scrolls horizontally. */
+body[data-route="forum"] #root>div>div:nth-child(2){position:static!important;background:transparent!important;backdrop-filter:none!important;border:0!important;box-shadow:none!important;padding:9px 2px 7px!important;display:flex!important;gap:4px!important;overflow-x:auto!important;overflow-y:hidden!important;justify-content:flex-start!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important}
+body[data-route="forum"] #root>div>div:nth-child(2)::-webkit-scrollbar{display:none!important}
+body[data-route="forum"] #root>div>div:nth-child(2) button{flex:0 0 auto!important;width:auto!important;min-width:max-content!important;max-width:none!important;background:transparent!important;color:#6B7D84!important;padding:7px 9px!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:none!important}
 body[data-route="forum"] #root>div>div:nth-child(2) button:first-child{background:#EAF5F2!important;color:#0D7563!important}
 body[data-route="forum"] #root>div>div:nth-child(3){display:none!important}
 body[data-route="forum"] #root>div>div:nth-child(4){display:none!important}
