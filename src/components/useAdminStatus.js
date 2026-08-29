@@ -1,0 +1,2 @@
+import{useEffect,useState}from'react';import{supabase}from'../lib/supabase.js';
+export default function useAdminStatus(userId){const[isAdmin,setIsAdmin]=useState(false),[checked,setChecked]=useState(false);useEffect(()=>{let alive=true;if(!userId){setIsAdmin(false);setChecked(true);return()=>{alive=false}}setChecked(false);supabase.from('app_admins').select('user_id').eq('user_id',userId).maybeSingle().then(({data,error})=>{if(!alive)return;setIsAdmin(!error&&!!data);setChecked(true)});return()=>{alive=false}},[userId]);return{isAdmin,checked}}
