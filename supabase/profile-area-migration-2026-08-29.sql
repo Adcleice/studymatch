@@ -9,7 +9,7 @@ set
     from (
       select min(ord) as first_pos, min(term) as v
       from (
-        select ord, btrim(term) as term, lower(unaccent(btrim(term))) as normalized
+        select ord, btrim(term) as term, lower(btrim(term)) as normalized
         from unnest(coalesce(p.interests,'{}'::text[]) || coalesce(p.keywords,'{}'::text[])) with ordinality as u(term,ord)
         where btrim(term) <> ''
       ) x
