@@ -1,4 +1,34 @@
-/* Explicit two-tone Matchworking wordmark in the map header. */
-body[data-route="map"] #root>div>header>div:first-child>span{font-size:0!important;color:transparent!important;background:none!important;-webkit-text-fill-color:initial!important}
-body[data-route="map"] #root>div>header>div:first-child>span::before{content:'Match';font-size:20px;color:#0B2532;font-weight:800}
-body[data-route="map"] #root>div>header>div:first-child>span::after{content:'working';font-size:20px;color:var(--brand-accent,#169B82);font-weight:800}
+/* Exact two-tone Matchworking wordmark on the map header. */
+body[data-route="map"] #root>div>header>div:first-child>span{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  font-size:0!important;
+  color:transparent!important;
+  background:none!important;
+  background-image:none!important;
+  -webkit-background-clip:initial!important;
+  background-clip:initial!important;
+  -webkit-text-fill-color:transparent!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+}
+body[data-route="map"] #root>div>header>div:first-child>span::before{
+  content:'Match'!important;
+  display:inline!important;
+  font-family:'Sora',sans-serif!important;
+  font-size:20px!important;
+  font-weight:650!important;
+  letter-spacing:-.035em!important;
+  color:#0B2532!important;
+  -webkit-text-fill-color:#0B2532!important;
+}
+body[data-route="map"] #root>div>header>div:first-child>span::after{
+  content:'working'!important;
+  display:inline!important;
+  font-family:'Sora',sans-serif!important;
+  font-size:20px!important;
+  font-weight:650!important;
+  letter-spacing:-.035em!important;
+  color:var(--brand-accent,#169B82)!important;
+  -webkit-text-fill-color:var(--brand-accent,#169B82)!important;
+}
