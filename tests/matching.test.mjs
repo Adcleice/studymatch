@@ -1,0 +1,6 @@
+import test from'node:test';import assert from'node:assert/strict';import{compatibility,rankPeople}from'../src/lib/matching.js';
+const me={name:'Eu',can_help:['Marketing'],need_help:['Física'],interests:['Astronomia'],institution:'UNESP',city:'São Paulo'};
+test('complementaridade aumenta o score e gera explicação',()=>{const p={name:'Ana',can_help:['Física'],need_help:['Marketing'],interests:['Astronomia'],institution:'UNESP',city:'São Paulo'};const r=compatibility(me,p);assert.ok(r.score>=80);assert.ok(r.receive.includes('Física'));assert.ok(r.give.includes('Marketing'));assert.ok(r.reasons.length>=3)});
+test('sem afinidade não inventa compatibilidade',()=>{const p={name:'Bia',can_help:['Direito'],need_help:['Química'],interests:['Cinema'],institution:'Outra',city:'Recife'};assert.equal(compatibility(me,p).score,0)});
+test('matching ignora diferenças de caixa e acentos',()=>{const p={name:'Caio',can_help:['fisica'],need_help:['marketing'],interests:['astrônomia']};const r=compatibility(me,p);assert.ok(r.score>60)});
+test('ranking coloca maior compatibilidade primeiro',()=>{const people=[{name:'Baixa',can_help:['Direito']},{name:'Alta',can_help:['Física'],need_help:['Marketing']}];const ranked=rankPeople(me,people);assert.equal(ranked[0].name,'Alta')});
