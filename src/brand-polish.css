@@ -1,0 +1,7 @@
+/* Two-tone wordmark on the map header without changing the logo artwork. */
+body[data-route="map"] #root>div>header>div:first-child>span{
+  color:transparent!important;
+  background:linear-gradient(90deg,#0B2532 0 36%,var(--brand-accent,#169B82) 36% 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+}
