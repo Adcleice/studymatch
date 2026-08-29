@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -64,16 +64,19 @@ jobs:
           t=re.sub(r'versionName\s+"[^"]+"',f'versionName "0.0.{n}"',t)
           p.write_text(t)
           PY
-      - name: Render official Matchworking asset for Android
+      - name: Render Matchworking Android icon
         run: |
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin imagemagick
           mkdir -p android/app/src/main/res/drawable-nodpi
-          rsvg-convert -w 390 public/studymatch-mark.svg -o /tmp/matchworking_mark.png
+          # favicon.svg is a complete, validated vector. The former mark file is an
+          # embedded-image SVG and can be truncated by text-based repository writes.
+          rsvg-convert -w 390 -h 390 public/favicon.svg -o /tmp/matchworking_mark.png
           convert -size 512x512 xc:none \
             -fill '#082A55' -draw 'roundrectangle 12,12 500,500 92,92' \
             /tmp/matchworking_mark.png -gravity center -composite \
             android/app/src/main/res/drawable-nodpi/matchworking_icon.png
+          test -s android/app/src/main/res/drawable-nodpi/matchworking_icon.png
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/src/main/AndroidManifest.xml')
