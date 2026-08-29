@@ -3,11 +3,6 @@ name: Android APK
 on:
   push:
     branches: [main]
-    paths:
-      - 'capacitor.config.json'
-      - 'public/studymatch-mark.svg'
-      - 'public/studymatch-app-icon.svg'
-      - '.github/workflows/android-apk.yml'
   workflow_dispatch:
 
 permissions:
@@ -43,10 +38,32 @@ jobs:
         run: npm install --no-save @capacitor/core@8.4.2 @capacitor/cli@8.4.2 @capacitor/android@8.4.2
       - name: Build web fallback
         run: npm run build
+      - name: Stamp installed APK build in native start URL
+        run: |
+          python3 - <<'PY'
+          import json, os
+          p='capacitor.config.json'
+          c=json.load(open(p))
+          base=c['server']['url'].split('?')[0]
+          c['server']['url']=f"{base}?apkBuild={os.environ['GITHUB_RUN_NUMBER']}"
+          json.dump(c,open(p,'w'),ensure_ascii=False,indent=2)
+          PY
       - name: Create Android project
         run: |
           npx cap add android
           npx cap sync android
+      - name: Set Android version for in-place updates
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re
+          p=Path('android/app/build.gradle')
+          t=p.read_text()
+          n=int(os.environ['GITHUB_RUN_NUMBER'])
+          t=re.sub(r'versionCode\s+\d+',f'versionCode {n}',t)
+          t=re.sub(r'versionName\s+"[^"]+"',f'versionName "0.0.{n}"',t)
+          p.write_text(t)
+          PY
       - name: Render official Matchworking asset for Android
         run: |
           sudo apt-get update
@@ -71,12 +88,14 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
           cp app/build/outputs/apk/debug/app-debug.apk ../Matchworking.apk
-      - name: Publish stable APK download
+      - name: Publish stable APK download and version metadata
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          NOTES="Build: $GITHUB_RUN_NUMBER\n\nAtualização instalável sobre a versão anterior, sem precisar desinstalar o app."
           if gh release view android-beta >/dev/null 2>&1; then
             gh release upload android-beta Matchworking.apk --clobber
+            gh release edit android-beta --title "Matchworking para Android — build $GITHUB_RUN_NUMBER" --notes "$NOTES"
           else
-            gh release create android-beta Matchworking.apk --title "Matchworking para Android" --notes "Versão beta instalável diretamente no Android."
+            gh release create android-beta Matchworking.apk --title "Matchworking para Android — build $GITHUB_RUN_NUMBER" --notes "$NOTES"
           fi
