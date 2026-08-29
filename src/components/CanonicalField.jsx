@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState}from'react';import{supabase}from'../lib/supabase.js';import{CheckCircle2,Search,AlertCircle}from'lucide-react';
+import React,{useEffect,useState}from'react';import{supabase}from'../lib/supabase.js';import{CheckCircle2,Search,AlertCircle}from'lucide-react';
 const norm=v=>String(v||'').trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ');
 const words=v=>norm(v).split(' ').filter(Boolean);
 const distance=(a,b)=>{a=norm(a);b=norm(b);const m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=0;i<=m;i++)d[i][0]=i;for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]};
