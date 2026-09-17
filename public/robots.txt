@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /messages
+Disallow: /admin
+Disallow: /setup
+Disallow: /reset-password
+
+Sitemap: https://matchworking.vercel.app/sitemap.xml
