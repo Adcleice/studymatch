@@ -7,8 +7,7 @@
     "androidScheme": "https",
     "cleartext": false,
     "allowNavigation": [
-      "matchworking.vercel.app",
-      "studymatch-self.vercel.app"
+      "matchworking.vercel.app"
     ]
   }
 }
