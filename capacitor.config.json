@@ -3,10 +3,11 @@
   "appName": "Matchworking",
   "webDir": "dist",
   "server": {
-    "url": "https://studymatch-self.vercel.app",
+    "url": "https://matchworking.vercel.app",
     "androidScheme": "https",
     "cleartext": false,
     "allowNavigation": [
+      "matchworking.vercel.app",
       "studymatch-self.vercel.app"
     ]
   }
