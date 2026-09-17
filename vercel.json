@@ -14,6 +14,7 @@
   ],
   "rewrites": [
     { "source": "/waitlist", "destination": "/waitlist-matchworking.html" },
-    { "source": "/((?!api/|assets/|studymatch-logo\\.svg|studymatch-mark\\.svg|favicon\\.svg|icons\\.svg|manifest\\.webmanifest|sw\\.js|robots\\.txt|sitemap\\.xml|social/|waitlist|waitlist-matchworking\\.html).*)", "destination": "/index.html" }
+    { "source": "/sobre", "destination": "/sobre.html" },
+    { "source": "/((?!api/|assets/|studymatch-logo\\.svg|studymatch-mark\\.svg|favicon\\.svg|icons\\.svg|manifest\\.webmanifest|sw\\.js|robots\\.txt|sitemap\\.xml|google81a263c6e88db3c0\\.html|sobre|sobre\\.html|social/|waitlist|waitlist-matchworking\\.html).*)", "destination": "/index.html" }
   ]
 }
