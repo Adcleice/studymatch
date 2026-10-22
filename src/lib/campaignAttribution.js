@@ -53,6 +53,7 @@ export function getCampaignAttribution() {
 
 export async function recordCampaignVisit() {
   if (typeof window === 'undefined') return;
+  getCampaignAttribution();
   const params = new URLSearchParams(window.location.search);
   const source = params.get('utm_source');
   const content = params.get('utm_content');
