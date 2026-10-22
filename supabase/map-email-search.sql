@@ -20,36 +20,37 @@ begin
     return null;
   end if;
 
-  select jsonb_build_object(
-    'id', p.id,
-    'name', p.name,
-    'username', p.username,
-    'avatar_url', p.avatar_url,
-    'bio', p.bio,
-    'type', p.type,
-    'institution', p.institution,
-    'course_or_role', p.course_or_role,
-    'city', p.city,
-    'age', p.age,
-    'can_help', p.can_help,
-    'need_help', p.need_help,
-    'interests', p.interests,
-    'keywords', p.keywords,
-    'show_age', p.show_age,
-    'show_institution', p.show_institution,
-    'show_city', p.show_city,
-    'appear_on_map', p.appear_on_map,
-    'allow_connection_requests', p.allow_connection_requests
-  )
+  select case
+    when (p.city is not null and btrim(p.city) <> '')
+      or (p.institution is not null and btrim(p.institution) <> '')
+    then jsonb_build_object(
+      'id', p.id,
+      'name', p.name,
+      'username', p.username,
+      'avatar_url', p.avatar_url,
+      'bio', p.bio,
+      'type', p.type,
+      'institution', p.institution,
+      'course_or_role', p.course_or_role,
+      'city', p.city,
+      'age', p.age,
+      'can_help', p.can_help,
+      'need_help', p.need_help,
+      'interests', p.interests,
+      'keywords', p.keywords,
+      'show_age', p.show_age,
+      'show_institution', p.show_institution,
+      'show_city', p.show_city,
+      'appear_on_map', p.appear_on_map,
+      'allow_connection_requests', p.allow_connection_requests
+    )
+    else jsonb_build_object('id', p.id, 'city', p.city, 'institution', p.institution)
+  end
   into result
   from public.profiles p
   where lower(p.email) = email_query
     and p.id <> auth.uid()
     and p.appear_on_map is distinct from false
-    and (
-      (p.city is not null and btrim(p.city) <> '')
-      or (p.institution is not null and btrim(p.institution) <> '')
-    )
   limit 1;
 
   return result;
