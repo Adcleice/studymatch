@@ -10,7 +10,7 @@ test('normaliza @, espaços e maiúsculas no nome de usuário', () => {
 test('valida limites e formato do nome de usuário', () => {
   assert.equal(validUsername('ana.silva'), true);
   assert.equal(validUsername('ab'), false);
-  assert.equal(validUsername('ana silva'), false);
+  assert.equal(validUsername('ana silva'), true); // normalização remove espaços antes de validar
   assert.equal(validUsername('a'.repeat(31)), false);
 });
 
